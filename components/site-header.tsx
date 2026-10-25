@@ -11,10 +11,10 @@ export function SiteHeader() {
     sync(); window.addEventListener("storage", sync); window.addEventListener("flc-cart-change", sync);
     return () => { window.removeEventListener("storage", sync); window.removeEventListener("flc-cart-change", sync); };
   }, []);
-  return <>
+  return <header className="site-header-shell" aria-label="Site header">
     <div className="announcement"><span>Fahad Laser / FLC Decor</span><span className="announcement-note">Synthetic demo catalog · Pakistan</span></div>
-    <header className="site-header">
-      <Link href="/" className="brand" aria-label="Fahad Laser home"><span className="brand-mark">F</span><span><strong>FAHAD LASER</strong><small>FLC DECOR</small></span></Link>
+    <div className="site-header">
+      <Link href="/" className="brand"><span className="brand-mark">F</span><span><strong>FAHAD LASER</strong><small>FLC DECOR</small></span></Link>
       <button className="menu-button" aria-expanded={open} aria-controls="main-nav" onClick={() => setOpen((value) => !value)}>Menu <span>{open ? "×" : "＋"}</span></button>
       <nav id="main-nav" className={`main-nav ${open ? "is-open" : ""}`} aria-label="Main navigation">
         <Link href="/shop" onClick={() => setOpen(false)}>Shop</Link>
@@ -25,8 +25,8 @@ export function SiteHeader() {
       <div className="header-actions">
         <Link href="/search" className="icon-link" aria-label="Search">⌕</Link>
         <Link href="/account" className="icon-link" aria-label="Account">◯</Link>
-        <Link href="/cart" className="cart-link" aria-label={`Cart with ${count} items`}>Bag <span>{count}</span></Link>
+        <Link href="/cart" className="cart-link" aria-label={`Bag ${count} cart`}>Bag <span>{count}</span></Link>
       </div>
-    </header>
-  </>;
+    </div>
+  </header>;
 }

@@ -95,3 +95,35 @@ Codex: append entries using this template for each significant choice:
 
 ## Open business and production decisions
 Keep a running list of settings requiring owner input before live launch. Their absence must not block local/demo implementation.
+
+### 2026-10-26 — Controlled patched toolchain upgrade
+- **Decision:** Upgrade Next.js/eslint-config-next to 16.4.3, Vitest to 5.0.5, and Prisma/@prisma-client to 7.10.1; migrate ESLint to the supported flat config and Prisma CLI URL to `prisma.config.ts`.
+- **Alternatives considered:** Leave known advisories open; apply `npm audit fix --force` without compatibility review; downgrade to avoid framework changes.
+- **Reason and tradeoffs:** The audit identified exploitable advisory chains. Official upgrade guidance shows Next 16 and Prisma 7 require configuration changes; controlled changes preserve Node 22/TypeScript compatibility and all local checks passed. Major upgrades add review surface and are not proof of production compatibility.
+- **Affected files:** `package.json`, `package-lock.json`, `eslint.config.mjs`, `prisma.config.ts`, `prisma/schema.prisma`, `tsconfig.json`.
+- **Reversible:** Yes, with a reviewed package/lockfile rollback and corresponding config rollback.
+- **Owner review before production:** Yes.
+
+### 2026-10-26 — Strict PostgreSQL checkout adapter boundary
+- **Decision:** Add a Prisma/PostgreSQL repository selected only by `CHECKOUT_RUNTIME=database`; keep the process-local adapter only for non-production synthetic demo mode and reject production regardless of copied demo flags.
+- **Alternatives considered:** Replace the demo immediately without a runnable DB; silently fall back to in-memory state when DB access fails; keep only schema placeholders.
+- **Reason and tradeoffs:** This preserves the existing demo while creating a real transaction path. The adapter uses serializable transactions, conditional stock updates, encrypted fields, durable idempotency, inventory ledger and order/status rows. Docker is unavailable, so real DB concurrency/restart evidence remains open.
+- **Affected files:** `lib/prisma.ts`, `lib/database-store.ts`, `app/api/checkout/orders/route.ts`, `app/api/checkout/quote/route.ts`, `prisma/schema.prisma`, `prisma/migrations/0002_checkout_totals/migration.sql`.
+- **Reversible:** Yes; runtime selection is environment-configured and migration is forward-only.
+- **Owner review before production:** Yes.
+
+### 2026-10-26 — Accessibility landmark and accessible-name correction
+- **Decision:** Keep one site-header banner landmark, place the announcement inside that landmark, and make visible cart text part of the cart link accessible name.
+- **Alternatives considered:** Suppress axe findings in tests; retain duplicate banner roles; use an aria label unrelated to visible control text.
+- **Reason and tradeoffs:** The actual axe audit found WCAG landmark and label-content-name violations. Correcting semantic structure improves keyboard/screen-reader behavior without changing the visual design. The announcement remains a presentational bar and the header remains the single banner landmark.
+- **Affected files:** `components/site-header.tsx`, `tests/e2e/accessibility.spec.ts`, `tests/e2e/customer-journey.spec.ts`.
+- **Reversible:** Yes.
+- **Owner review before production:** No, except normal accessibility review.
+
+### 2026-10-26 — Exclude generated browser artifacts from source lint
+- **Decision:** Exclude `playwright-report/**` and `test-results/**` from ESLint and Git tracking while continuing to lint all application, library and test source.
+- **Alternatives considered:** Delete reports before every lint run; disable ESLint rules globally; lint generated trace bundles as source.
+- **Reason and tradeoffs:** Browser traces are generated third-party/minified bundles and produced false hook-rule errors after E2E runs. A narrow ignore boundary keeps source lint meaningful and makes verification repeatable.
+- **Affected files:** `eslint.config.mjs`, `.gitignore`.
+- **Reversible:** Yes.
+- **Owner review before production:** No.

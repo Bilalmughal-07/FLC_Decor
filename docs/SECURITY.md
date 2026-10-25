@@ -13,7 +13,7 @@
 
 ## Current demo posture
 
-The demo contains synthetic fixtures only. Checkout is disabled whenever `NODE_ENV=production`, guest order lookup fails closed without a verified capability, no real customer/admin auth exists, and no external provider credentials are stored. The admin page is a synthetic preview and must not be connected to real data without the complete authorization boundary.
+The demo contains synthetic fixtures only. Checkout is disabled whenever `NODE_ENV=production`, guest order lookup fails closed without a verified capability, and no external provider credentials are stored. A local-only auth adapter now provides scrypt password hashing, revocable HttpOnly sessions, TOTP/recovery-code helpers and an admin MFA boundary; it is intentionally unavailable in production and is not a durable identity provider. The admin page is a synthetic preview and must not be connected to real data without the complete authorization, CRUD and audit boundary.
 
 ## Open security findings
 

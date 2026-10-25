@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import { effectivePrice, formatPrice, getProduct, getVariant, type Product } from "@/lib/catalog";
 import { ProductArt } from "@/components/product-art";
 
 type CartLine = { variantId: string; quantity: number };
+function readCart() { return typeof window === "undefined" ? "[]" : window.localStorage.getItem("flc-cart") ?? "[]"; }
+function subscribeCart(onStoreChange: () => void) { window.addEventListener("flc-cart-change", onStoreChange); return () => window.removeEventListener("flc-cart-change", onStoreChange); }
+function parseCart(value: string): CartLine[] { try { const parsed = JSON.parse(value); return Array.isArray(parsed) ? parsed : []; } catch { return []; } }
 export function CartClient() {
-  const [cart, setCart] = useState<CartLine[]>([]);
-  useEffect(() => setCart(JSON.parse(localStorage.getItem("flc-cart") ?? "[]")), []);
-  function sync(next: CartLine[]) { setCart(next); localStorage.setItem("flc-cart", JSON.stringify(next)); localStorage.setItem("flc-cart-count", String(next.reduce((sum, item) => sum + item.quantity, 0))); window.dispatchEvent(new Event("flc-cart-change")); }
+  const cartValue = useSyncExternalStore(subscribeCart, readCart, () => "[]");
+  const cart = useMemo(() => parseCart(cartValue), [cartValue]);
+  function sync(next: CartLine[]) { localStorage.setItem("flc-cart", JSON.stringify(next)); localStorage.setItem("flc-cart-count", String(next.reduce((sum, item) => sum + item.quantity, 0))); window.dispatchEvent(new Event("flc-cart-change")); }
   const lines = useMemo(() => cart.map((line) => { const variant = getVariant(line.variantId); const product = productsForVariant(line.variantId); return variant && product ? { ...line, variant, product, total: effectivePrice(variant) * line.quantity } : null; }).filter(Boolean) as Array<CartLine & { variant: NonNullable<ReturnType<typeof getVariant>>; product: Product; total: number }>, [cart]);
   const subtotal = lines.reduce((sum, line) => sum + line.total, 0);
   return <div className="cart-page"><section className="page-hero compact-hero"><p className="eyebrow">Your bag</p><h1>Make room for something good.</h1><p>Cart prices are estimates until the server recalculates them at checkout. No stock is reserved in the bag.</p></section>{lines.length ? <div className="cart-layout"><div className="cart-lines">{lines.map((line) => <div className="cart-line" key={line.variantId}><div className="cart-line-art"><ProductArt product={line.product} compact /></div><div className="cart-line-main"><p className="eyebrow">{line.product.category}</p><h2>{line.product.name}</h2><p>{line.variant.size} · {line.variant.color}</p><div className="cart-line-actions"><div className="quantity-stepper"><button onClick={() => sync(cart.map((item) => item.variantId === line.variantId ? { ...item, quantity: Math.max(1, item.quantity - 1) } : item))}>−</button><span>{line.quantity}</span><button onClick={() => sync(cart.map((item) => item.variantId === line.variantId ? { ...item, quantity: Math.min(line.variant.stock, item.quantity + 1) } : item))}>＋</button></div><button className="remove-button" onClick={() => sync(cart.filter((item) => item.variantId !== line.variantId))}>Remove</button></div></div><strong>{formatPrice(line.total)}</strong></div>)}</div><aside className="cart-summary"><p className="eyebrow">Summary</p><div className="summary-row"><span>Subtotal</span><strong>{formatPrice(subtotal)}</strong></div><div className="summary-row"><span>Shipping</span><span className="tbd">To be configured</span></div><div className="summary-total"><span>Total at checkout</span><strong>Pending quote</strong></div><Link className="button button-dark button-full" href="/checkout">Continue to checkout <span>→</span></Link><Link className="text-link centered" href="/shop">Continue shopping</Link></aside></div> : <div className="empty-state"><p className="eyebrow">Nothing here yet</p><h2>Your space is waiting for its next statement piece.</h2><Link className="button button-dark" href="/shop">Browse the collection</Link></div>}</div>;

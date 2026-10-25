@@ -4,6 +4,8 @@
 **Scope:** Repository documentation, Next.js application, route handlers, Prisma schema/migration, tests, local runtime smoke checks, dependency audit.  
 **Assessment:** **Development demo verified; production readiness not achieved.**
 
+**Current-status note:** The original audit record below is preserved for traceability. The later **Final remediation audit — superseding verification record** section is authoritative for the current implementation and test results.
+
 ## Executive assessment
 
 The local synthetic storefront is runnable and the core demo checkout path is functional. The clean production build exposes 35 routes, the main customer pages render successfully, server pricing and stock validation work, and the demo checkout has deterministic idempotency and concurrency tests.
@@ -257,3 +259,139 @@ The prior implementation status has been updated to reflect this audit. Safe fix
 ## Post-audit instruction pass
 
 The follow-up implementation instruction added and verified `docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/SECURITY.md`, `docs/OPERATIONS.md`, `docs/DECISIONS.md`, `PRODUCTION_READINESS.md`, local Git initialization, baseline security headers, no-index demo robots, non-sensitive sitemap routes, and global loading/error states. The final build remains green at 37 routes. No GitHub remote, external account, production credential, deployment or push was created.
+
+---
+
+# Final remediation audit — superseding verification record
+
+**Verification date:** 2026-10-26 (Asia/Karachi)
+**Runtime:** Node 22.22.1, Next.js 16.4.3, Vitest 5.0.5, Prisma 7.10.1
+**Scope:** Current code after the remediation phases, source inspection, local browser automation, production-mode smoke tests and available automated gates.
+**Rule:** A feature is marked verified only where this run produced direct test or browser evidence. Schema-only code, fail-closed behavior and placeholders remain partial or blocked.
+
+## Executive assessment
+
+The existing website was preserved and materially hardened. The local synthetic storefront is runnable: the responsive customer journey passes on desktop and 390px mobile, homepage axe checks pass on desktop and mobile, strict lint/typecheck/build pass, unit tests pass, and the dependency audit reports zero high-severity-or-higher vulnerabilities. Production-mode smoke tests confirm that checkout remains disabled and `/admin` is gated.
+
+This is not a complete production implementation of the PRD/SRS. Durable PostgreSQL execution, production identity/email, admin CRUD, inventory/order operations, durable media storage, guest email verification, distributed abuse controls, performance/load testing, backup restore and hosted CI remain unverified or unimplemented. Production checkout is intentionally blocked.
+
+## Feature completion checklist
+
+| Requirement | Status | Evidence and remaining gap |
+|---|---|---|
+| FR-001 home/catalog discovery | Partial | Homepage, categories, featured pieces and custom CTA render; sample CSS artwork and public contact remain demo/configuration placeholders. |
+| FR-002 category hierarchy | Partial | Category fixtures/pages and Prisma relations exist; admin placement/depth enforcement is not runtime-verified. |
+| FR-003 product details and variants | Partial | Product pages expose variant color/size/price/stock and browser selection passes; real media gallery, thumbnails and zoom are absent. |
+| FR-004 search/filtering | Partial | Category, search, color, size, stock, price bands and sort controls exist; query state now syncs to the URL, but server-side arbitrary ranges/pagination are absent. |
+| FR-005 sorting | Partial | Featured/newest/price/alphabetical controls with deterministic ID tie-break exist; server-side pagination is absent. |
+| FR-006 authoritative pricing/stock | Partial | Demo server quote/order validates fixture prices and stock; PostgreSQL authoritative runtime exists behind a strict flag but was not integration-run. |
+| FR-007 media references/snapshots | Partial | Schema and validated image quarantine endpoint exist; durable media storage/reference lifecycle is not implemented. |
+| FR-008 guest/customer cart | Partial | Guest localStorage cart and browser flow pass; durable customer cart and safe guest merge are absent. |
+| FR-009 checkout fields/totals | Partial | Required contact/address form and demo quote exist; shipping/tax policy and authoritative live totals are `NOT_CONFIGURED`. |
+| FR-010 COD | Partial | Explicitly labeled synthetic COD demo passes; live COD is disabled. |
+| FR-011 atomic order/stock/idempotency | Partial | Demo lock and deterministic tests pass; Prisma serializable transaction/conditional decrement/ledger code exists but real PostgreSQL concurrency is unverified. |
+| FR-012 idempotency replay/conflict | Partial | Demo replay/conflict tests pass and database code stores a durable result; restart/unknown-commit behavior is unverified. |
+| FR-013 acknowledged-write durability | Blocked | Production checkout fails closed; HA, failover and acknowledged durability evidence do not exist. |
+| FR-014 stock release policy | Partial | Demo does not release COD stock generically; owner-approved persistent lifecycle policy is absent. |
+| FR-015 order snapshots | Partial | Demo and Prisma snapshot fields exist; durable runtime/order history is unverified. |
+| FR-016 customer auth/sessions/reset | Partial | Local scrypt registration/login, secure revocable HttpOnly sessions and generic reset response work in demo; no durable provider or email delivery. |
+| FR-017 customer MFA | Partial | Local TOTP, recovery-code hashing and replay protection helpers exist; persistence/provider/UI completion is absent. |
+| FR-018 admin auth/MFA/authorization | Partial | Admin login/MFA boundary and `requireAdmin` guard exist; production admin is fail-closed, and durable RBAC/audit/CRUD are absent. |
+| FR-019 verified guest tracking | Blocked/fail-closed | Guessing does not disclose order data; email challenge/provider and scoped capability are not implemented. |
+| FR-020 admin CRUD | Not implemented | `/admin` remains a synthetic preview; no verified product/category/inventory/order CRUD. |
+| FR-021 order status transitions | Not implemented | Status rows exist in schema, but owner-approved transition map and audited mutation API are absent. |
+| FR-022 abuse/fraud/rate limits | Partial | Endpoint limits, origin checks and proxy-safe client bucketing exist in process; distributed limits, risk signals and audit telemetry are absent. |
+| FR-023 secure uploads | Partial | Byte sniffing, image bounds, sharp decode/re-encode, metadata removal and quarantine key are tested; object storage and admin workflow are absent. |
+| FR-024 media cleanup | Not implemented | No durable reference-safe orphan cleanup job or 30-day policy execution. |
+| FR-025 custom requests/contact | Blocked/configurable | WhatsApp CTA is wired only when `WHATSAPP_CONTACT` is supplied; no real number was invented. |
+| FR-026 responsive/accessibility/theme/motion | Partial | Responsive desktop/mobile journey passes, homepage axe is 2/2, OS theme bootstrap and reduced-motion rules exist; full-route visual and keyboard audit is open. |
+| FR-027 3D/progressive enhancement | Partial | CSS orbit/showcase effects and static product-art fallback exist; no interactive 3D/WebGL implementation or performance measurement. |
+
+## Test results
+
+| Check | Result | Evidence |
+|---|---|---|
+| `npm run lint` | PASS | ESLint source tree clean; generated browser reports are excluded narrowly. |
+| `npm run typecheck` | PASS | `tsc --noEmit` succeeds. |
+| `npm test` | PASS: 12 passed, 1 skipped | Domain, auth, media and database fail-closed tests pass; PostgreSQL file is skipped without opt-in DB. |
+| `npm run test:integration` | SKIPPED: 1 | Requires `RUN_POSTGRES_INTEGRATION=true` and a reachable PostgreSQL instance. |
+| `npm run security:audit` | PASS | `npm audit --audit-level=high`: 0 vulnerabilities. |
+| `npm run db:validate` | PASS | Prisma schema validation and client generation with synthetic local `DATABASE_URL`. |
+| `npm run build` | PASS | Next 16.4.3 production build generated 49 routes. |
+| `npm run test:e2e -- --reporter=line` | PASS: 6/6 | Customer journey and private tracking on desktop/mobile. |
+| `tests/e2e/accessibility.spec.ts` | PASS: 2/2 | Axe homepage scan on desktop/mobile. |
+| Production checkout smoke | PASS fail-closed | `NODE_ENV=production`, valid-shaped request returns HTTP 503 `CHECKOUT_NOT_CONFIGURED`. |
+| Production admin smoke | PASS fail-closed | `GET /admin` returns 307 to `/admin/login?reason=not-configured`. |
+| Security headers | PASS locally | CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy and Permissions-Policy observed. |
+| PostgreSQL concurrency/restart | NOT VERIFIED | Docker Engine pipe unavailable; no live DB was available. |
+| Lighthouse/load/resilience/restore | NOT RUN | No production host, load runner or restore target was available. |
+
+The local manual BrowserAct evidence is stored in `docs/evidence-home-desktop.png`, `docs/evidence-customer-journey.png`, `docs/evidence-account-session.png`, and `docs/evidence-prod-admin.txt`. All data used was synthetic.
+
+## Security findings
+
+| Finding | Severity | Current result | Required next step |
+|---|---|---|---|
+| Process-local checkout state | Critical | Production fail-closed; demo state disappears on restart. | Run and pass PostgreSQL transaction, restart, unknown-commit and failover tests before enabling writes. |
+| No durable identity/provider | High | Local scrypt/session/MFA boundary only; production auth fails closed. | Select provider, persist users/factors/sessions, configure secrets and verify revocation/rotation. |
+| Guest tracking email verification absent | High | Order-number lookup returns generic 503 and browser test confirms no disclosure. | Implement provider-backed short-lived email capability with throttling and replay protection. |
+| Admin CRUD/audit not implemented | High | Admin pages are not a production data boundary; production route is blocked. | Implement server-side RBAC, audited CRUD, inventory ledger, status policy and authorization tests. |
+| Media storage/reference lifecycle absent | High | Upload validation is safer and unit-tested, but storage is `NOT_CONFIGURED`. | Add isolated object storage, quarantine promotion, authorization and reference-safe cleanup. |
+| Distributed abuse controls/observability absent | High | In-process endpoint limits and request IDs only. | Add shared rate limits, redacted audit events, metrics, alerts and incident response integration. |
+| Dependency advisories | Resolved locally | Audit now reports 0 vulnerabilities after controlled upgrades. | Keep lockfile review and CI audit enforced; verify provider/runtime compatibility before deployment. |
+| Browser security controls | Partial | Origin checks, secure cookie options and headers exist; full CSP/CSRF deployment review is open. | Test all state-changing routes behind the final proxy/host and confirm trusted-proxy configuration. |
+
+No production credentials, real customer records, real phone numbers, live WhatsApp contact, or real COD order was added.
+
+## UI/UX findings
+
+- The existing premium visual direction was preserved: editorial typography, warm neutral palette, CSS sample artwork, catalog filters, product variant controls, cart and demo checkout remain intact.
+- Desktop and 390px mobile customer journeys pass through product selection, cart, checkout, confirmation and tracking privacy.
+- Homepage axe scans pass on both viewports after correcting label-content-name and duplicate-landmark findings.
+- OS theme initialization, explicit theme controls and `prefers-reduced-motion` CSS are present. Full light/dark screenshot comparison and keyboard traversal across every route were not executed.
+- Product artwork is clearly marked as original CSS sample artwork. A final multi-image gallery, zoom, owner-approved media and interactive 3D are not implemented.
+- The custom WhatsApp action correctly remains disabled until an owner-configured number exists.
+
+## Performance findings
+
+- The production build compiles successfully and uses lightweight CSS artwork; no build-time performance error was observed.
+- No Lighthouse, Web Vitals, bundle budget, mobile network, load, concurrency or resilience metrics were collected. LCP/INP/CLS therefore remain unverified.
+- The 3D requirement is currently handled as progressive CSS enhancement with static fallback; no WebGL payload is shipped by the verified path.
+
+## Remaining bugs
+
+| Severity | Reproduction | Bug | Recommended fix |
+|---|---|---|---|
+| Critical | Set production runtime and attempt a valid checkout; restart demo server after a demo order. | Live checkout is unavailable and demo orders are process-local. | Complete and verify PostgreSQL/HA/durability path before launch; keep the 503 guard until then. |
+| High | Visit `/admin` or attempt product/inventory/order operations. | No production CRUD, inventory adjustment, order transition or audit workflow exists. | Implement admin modules, server authorization, approved status transitions and audit ledger. |
+| High | Submit tracking with a real-looking order/email pair. | Tracking always returns not-configured because no email provider/capability exists. | Add verified email challenge and scoped short-lived capability. |
+| High | Register/reset with a real account requirement. | Demo identity is in memory; reset/verification delivery is not configured. | Integrate a durable identity provider and email delivery; test revocation and recovery. |
+| High | Upload/manage product media. | Validation endpoint stops at quarantine metadata; no durable storage/reference UI or cleanup. | Add object-storage adapter and media lifecycle transaction. |
+| Medium | Navigate all filter states and large catalogs. | Filters are client-side and price ranges are fixed bands; no pagination. | Add server-side query contract, arbitrary bounds, URL state, pagination/load-more and filter drawer if approved. |
+| Medium | Compare product detail with final UI spec. | Gallery/zoom/final product photography and interactive 3D are absent. | Supply licensed/owner media and implement accessible gallery progressively. |
+| Medium | Run PostgreSQL integration test. | Test is skipped because Docker/Postgres is unavailable in this environment. | Run against disposable CI Postgres and record concurrency/replay/restart results. |
+| Low | Run complete visual/performance regression. | No Lighthouse/visual baseline/load evidence. | Add controlled CI performance and screenshot budgets after a deployment target is chosen. |
+
+## Production-readiness blockers
+
+The following are launch blockers, not optional polish:
+
+1. Owner-approved shipping, courier, tax, COD reservation/release, returns, refunds, cancellation, status, retention and public-contact policies.
+2. Verified PostgreSQL deployment with migrations, transaction durability, concurrency, restart/unknown-commit behavior, HA/failover, encrypted backups, restore drill, key recovery and approved RPO/RTO.
+3. Durable customer/admin identity, mandatory admin MFA, optional customer MFA, session revocation/rotation, email verification/reset and authorization/RBAC.
+4. Guest tracking capability bound to verified email, with enumeration resistance and throttling.
+5. Admin product/category/media/inventory/order CRUD with audit events and status-transition policy.
+6. Object storage, image quarantine/promotion, metadata stripping, authorization and reference-safe cleanup.
+7. Shared rate limiting, fraud/risk controls, privacy-safe logs, metrics, alerts and incident operations.
+8. Final owner-provided product media/prices/copy/contact details and legal/privacy approval.
+9. Staging deployment, rollback, load/resilience/performance evidence and CI execution on the eventual remote repository.
+
+## Final development-readiness assessment
+
+**Local development/demo readiness:** READY for synthetic local development and demonstration; verified by the command and browser evidence above.
+**Complete SRS/PRD feature readiness:** NOT COMPLETE.
+**Production customer-data readiness:** NOT SAFE.
+**Production COD readiness:** BLOCKED and correctly fail-closed.
+**Overall final assessment:** The remediation materially improves correctness and safety without rebuilding the existing design, but the project must not be represented as production-ready until the blockers above are implemented and independently verified.
+
+The current source of truth for phase state is `IMPLEMENTATION_STATUS.md`; detailed evidence is in `docs/VERIFICATION_EVIDENCE.md`, and decisions are in `12_DECISIONS.md` and `docs/DECISION_REGISTER.md`.

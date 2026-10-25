@@ -21,25 +21,25 @@ This checklist is evidence-based. A checked item has a concrete verification ref
 - [x] Prisma schema validates and client generation passes with `DATABASE_URL` supplied.
 - [x] Forward migration declares the 18 schema tables and explicit foreign-key/delete rules.
 - [x] Development-only seed script exists.
-- [ ] Runtime uses PostgreSQL transactions instead of the in-memory demo adapter.
-- [ ] Durable idempotency, inventory ledger, outbox and unknown-commit recovery are implemented.
+- [ ] Runtime is switched to verified PostgreSQL transactions instead of the in-memory demo adapter. Code path exists but real DB verification is blocked.
+- [ ] Durable idempotency, inventory ledger, outbox and unknown-commit recovery are production-verified. Schema/code exists; integration and restart evidence are open.
 - [ ] Category-depth enforcement and nullable variant-combination uniqueness are verified in PostgreSQL.
-- [ ] Supabase Auth integration, RLS/backend-only boundaries and admin role mapping are implemented.
-- [ ] R2 upload authorization, processing and cleanup are implemented.
+- [ ] Production identity/RLS/backend-only boundaries and admin role mapping are implemented. Local demo auth is not a production provider.
+- [ ] R2/object-storage authorization, processing and cleanup are implemented. Local media validation is available; storage remains disabled.
 
 ## Security and privacy
 
-- [ ] Customer registration/login/logout/reset and secure revocable sessions.
-- [ ] Mandatory administrator MFA and optional customer MFA.
-- [ ] CSRF, rate limits, secure cookies and authorization middleware.
-- [ ] Verified guest email challenge and scoped order capability.
-- [ ] Secure media validation, quarantine, EXIF stripping and reference-safe deletion.
+- [ ] Customer registration/login/logout/reset and secure revocable sessions in a durable production provider. Local demo sessions are verified only.
+- [ ] Mandatory administrator MFA and optional customer MFA in durable production identity. Local TOTP/recovery helpers are verified only.
+- [ ] CSRF, distributed rate limits, secure cookies and authorization middleware. Local origin checks/cookies/rate limits are verified.
+- [ ] Verified guest email challenge and scoped order capability. Current behavior fails closed.
+- [ ] Secure media validation, quarantine, EXIF stripping and reference-safe deletion. Validation/re-encode is implemented; durable lifecycle is not.
 - [ ] Redacted audit logs, request IDs, secrets management and key rotation.
 - [ ] Legal retention, deletion and Pakistani privacy review approved by owner/counsel.
 
 ## Storefront and operations
 
-- [x] Local synthetic customer journey and server checkout behaviors verified.
+- [x] Local synthetic customer journey and server checkout behaviors verified (Playwright 6/6).
 - [x] Live checkout fails closed when `NODE_ENV=production`.
 - [ ] Real product media, approved prices, final copy and public contact details supplied.
 - [ ] Shipping/courier/tax/returns/cancellation/status policies approved.
@@ -52,15 +52,15 @@ This checklist is evidence-based. A checked item has a concrete verification ref
 
 - [x] `npm run lint` passes.
 - [x] `npm run typecheck` passes.
-- [x] `npm test` passes: 6 tests.
-- [x] `npm run build` passes: 35 routes.
+- [x] `npm test` passes: 12 passed, 1 skipped PostgreSQL file.
+- [x] `npm run build` passes: 49 routes.
 - [x] `prisma validate` and `prisma generate` pass.
-- [ ] Real PostgreSQL integration tests.
-- [ ] Browser E2E tests.
-- [ ] Accessibility/visual regression tests.
-- [ ] Security scanning after dependency remediation.
+- [ ] Real PostgreSQL integration tests (blocked by unavailable Docker/PostgreSQL).
+- [x] Browser E2E tests: 6/6 desktop/mobile journey and tracking cases.
+- [x] Accessibility homepage axe tests: 2/2 desktop/mobile. Full visual regression remains open.
+- [x] Security scanning after dependency remediation: npm audit high threshold 0 vulnerabilities.
 - [ ] Staging load/resilience and backup-restore tests.
 
 ## Launch decision
 
-**Current assessment: NOT READY FOR PRODUCTION.** The project is suitable for local synthetic development only. The exact blockers and reproduction evidence are recorded in [`FINAL_AUDIT_REPORT.md`](./FINAL_AUDIT_REPORT.md).
+**Current assessment: NOT READY FOR PRODUCTION.** The project is suitable for local synthetic development and browser demonstration only. The exact blockers and reproduction evidence are recorded in [`FINAL_AUDIT_REPORT.md`](./FINAL_AUDIT_REPORT.md).

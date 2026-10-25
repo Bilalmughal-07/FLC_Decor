@@ -1,0 +1,57 @@
+name: FLC Decor CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: postgresql://flc:flc_dev_only@localhost:5432/flcdecor?schema=public
+      DEMO_CHECKOUT_ENABLED: "false"
+      SESSION_SECRET: ci-only-not-a-production-secret
+      CHECKOUT_FIELD_ENCRYPTION_KEY: 00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff
+      CHECKOUT_RUNTIME: database
+      CHECKOUT_TOTALS_MODE: synthetic-zero
+      RUN_POSTGRES_INTEGRATION: "true"
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: flc
+          POSTGRES_PASSWORD: flc_dev_only
+          POSTGRES_DB: flcdecor
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flc -d flcdecor"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run security:audit
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run db:validate
+      - run: npm run db:deploy
+      - run: npm run test:integration
+      - run: npm run build:check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
+# This workflow is prepared for a future repository. It has not run on GitHub
+# because no remote repository has been created or authorized.

@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum ProductStatus {
@@ -33,12 +32,49 @@ model User {
   id           String    @id @default(uuid())
   email        String    @unique
   passwordHash String
+  role         String    @default("CUSTOMER")
   status       String    @default("ACTIVE")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   sessions     Session[]
   orders       Order[]
   carts        Cart[]
+  mfaFactors   MfaFactor[]
+  recoveryCodes MfaRecoveryCode[]
+  resetTokens  PasswordResetToken[]
+}
+
+model MfaFactor {
+  id               String   @id @default(uuid())
+  userId           String
+  kind             String
+  secretCiphertext String
+  keyVersion       String
+  enabledAt        DateTime?
+  lastAcceptedStep BigInt?
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, kind])
+}
+
+model MfaRecoveryCode {
+  id       String    @id @default(uuid())
+  userId   String
+  codeHash String
+  usedAt   DateTime?
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, usedAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, expiresAt])
 }
 
 model Session {
@@ -179,6 +215,7 @@ model Order {
   currency             String        @default("PKR")
   subtotalMinor        Int
   shippingMinor        Int?
+  taxMinor             Int           @default(0)
   discountMinor        Int           @default(0)
   totalMinor           Int?
   createdAt            DateTime      @default(now())
@@ -189,6 +226,7 @@ model Order {
   tracking             GuestTrackingVerification[]
   statusEvents         OrderStatusEvent[]
   @@index([userId, createdAt])
+  @@index([guestEmailNormalized, createdAt])
 }
 
 model OrderItem {
@@ -240,6 +278,7 @@ model GuestTrackingVerification {
   consumedAt  DateTime?
   attempts    Int       @default(0)
   order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  @@index([orderId, expiresAt])
 }
 
 model OrderStatusEvent {

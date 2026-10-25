@@ -28,7 +28,16 @@ The local demo storefront uses an in-memory adapter so it can run without Docker
 npm run typecheck
 npm test
 npm run build
+npm run security:audit
+npm run db:validate
 ```
+
+Additional check scripts are available for unit, PostgreSQL integration and
+Playwright E2E suites. Integration/E2E commands require their declared
+services and are not treated as passing until they have actually run.
+
+The local `.github/workflows/ci.yml` is prepared for a future private GitHub
+repository. No remote or GitHub execution is claimed in this local checkout.
 
 ## Important boundaries
 

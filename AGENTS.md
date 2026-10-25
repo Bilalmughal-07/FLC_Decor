@@ -40,3 +40,13 @@ The owner authorizes you to **continue implementing the complete website without
 
 ### Definition of done for autonomous run
 Complete a coherent, locally runnable end-to-end website with responsive premium FLC Decor UI, tasteful performant 3D effects with fallbacks, catalog/search/filter, cart, secure guest/customer flows, transactional demo COD ordering, order tracking, admin catalog/media/inventory/order management, database migrations/seed fixtures, automated tests, lint/typecheck/build checks, example environment configuration, and setup instructions. Document what is implemented vs demo-only vs production-blocked. Run available checks and fix failures. Produce `IMPLEMENTATION_STATUS.md` and a final handoff report with commands, test results, known issues, and exact production blockers. Keep going until this definition is met or all remaining work is genuinely blocked by unavailable external access.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
