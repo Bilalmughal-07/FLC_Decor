@@ -16,6 +16,8 @@ This checklist is evidence-based. A checked item has a concrete verification ref
 ## Application and data
 
 - [x] Local Next.js TypeScript build passes.
+- [x] Baseline security response headers and no-index demo robots policy are present.
+- [x] Global loading and error states are present.
 - [x] Prisma schema validates and client generation passes with `DATABASE_URL` supplied.
 - [x] Forward migration declares the 18 schema tables and explicit foreign-key/delete rules.
 - [x] Development-only seed script exists.

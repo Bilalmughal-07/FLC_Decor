@@ -85,5 +85,13 @@ Codex: append entries using this template for each significant choice:
 - **Reversible:** Yes; replace the scope adapter and verification gate with the PostgreSQL/email capability implementation before launch.
 - **Owner review before production:** Yes.
 
+### 2026-10-26 — Baseline security headers and non-sensitive SEO routes
+- **Decision:** Add conservative response headers, a no-index robots policy for the synthetic demo, an explicit public sitemap for non-sensitive catalog/policy pages, and global loading/error states.
+- **Alternatives considered:** Add a permissive production indexing policy; expose checkout/order routes in the sitemap; defer error/loading states until the production host is selected.
+- **Reason and tradeoffs:** The demo must not be indexed as a live store or expose private/order routes. The headers reduce common browser-side risk without claiming TLS/CSP/auth completion. Production SEO and CSP should be reviewed once the real domain and runtime are approved.
+- **Affected files:** `next.config.ts`, `app/layout.tsx`, `app/robots.ts`, `app/sitemap.ts`, `app/loading.tsx`, `app/error.tsx`.
+- **Reversible:** Yes.
+- **Owner review before production:** Yes.
+
 ## Open business and production decisions
 Keep a running list of settings requiring owner input before live launch. Their absence must not block local/demo implementation.

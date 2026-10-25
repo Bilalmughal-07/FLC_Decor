@@ -253,3 +253,7 @@ Before live orders, all of the following remain mandatory:
 **Production launch:** Blocked by the findings above.
 
 The prior implementation status has been updated to reflect this audit. Safe fixes made during the audit are recorded in `12_DECISIONS.md`, including production fail-closed checkout, scoped idempotency, fail-closed guest lookup, same-variant catalog filters, category routes and a complete Prisma migration model.
+
+## Post-audit instruction pass
+
+The follow-up implementation instruction added and verified `docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/SECURITY.md`, `docs/OPERATIONS.md`, `docs/DECISIONS.md`, `PRODUCTION_READINESS.md`, local Git initialization, baseline security headers, no-index demo robots, non-sensitive sitemap routes, and global loading/error states. The final build remains green at 37 routes. No GitHub remote, external account, production credential, deployment or push was created.
