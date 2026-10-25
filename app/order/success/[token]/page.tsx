@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { PageShell } from "@/components/page-shell";
+import { findDemoOrder } from "@/lib/demo-store";
+import { formatPrice } from "@/lib/catalog";
+
+export default async function SuccessPage({ params }: { params: Promise<{ token: string }> }) { const { token } = await params; const order = findDemoOrder(token); return <PageShell><div className="success-page">{order ? <><div className="success-seal">✓</div><p className="eyebrow">Demo order received</p><h1>Your order has been received.</h1><p>Keep your order number to check its progress. This synthetic order is held in the local demo process only.</p><div className="order-number">{order.publicOrderNumber}</div><div className="success-detail"><span>Subtotal</span><strong>{formatPrice(order.subtotal)}</strong></div><div className="demo-alert"><span>Demo only</span> Shipping and tax remain unconfigured, so no production total is shown.</div><div className="hero-actions"><Link className="button button-dark" href="/track-order">Track this order</Link><Link className="text-link" href="/shop">Continue browsing →</Link></div></> : <><p className="eyebrow">Order not found</p><h1>This demo order is no longer in memory.</h1><p>Local demo orders reset when the server restarts.</p><Link className="button button-dark" href="/shop">Return to shop</Link></>}</div></PageShell>; }

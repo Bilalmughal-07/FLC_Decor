@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { categories, products } from "@/lib/catalog";
+export async function GET() { return NextResponse.json({ categories, products, sampleData: true }); }

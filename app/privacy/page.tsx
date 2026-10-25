@@ -1,0 +1,2 @@
+import { PageShell } from "@/components/page-shell";
+export default function PrivacyPage() { return <PageShell><div className="narrow-page"><p className="eyebrow">Privacy</p><h1>Privacy documentation is a launch gate.</h1><p className="lead">The production version needs owner-approved retention periods, lawful basis, deletion behavior, backup handling and contact details. This demo uses synthetic data only.</p></div></PageShell>; }

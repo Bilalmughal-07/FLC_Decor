@@ -1,0 +1,2 @@
+import { PageShell } from "@/components/page-shell";
+export default function ShippingPage() { return <PageShell><div className="narrow-page"><p className="eyebrow">Shipping</p><h1>Shipping policy pending approval.</h1><p className="lead">Courier selection, service areas, pricing, packaging and delivery timing are business decisions still marked NOT_CONFIGURED. No promise is made by this demo.</p></div></PageShell>; }

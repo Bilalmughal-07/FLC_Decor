@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MediaState {
+  PENDING
+  APPROVED
+  ORPHANED
+  PURGED
+}
+
+enum OrderStatus {
+  RECEIVED
+  REVIEWING
+  CONFIRMED
+  DISPATCHED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  status       String    @default("ACTIVE")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+  orders       Order[]
+  carts        Cart[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, expiresAt])
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  parentId    String?
+  name        String
+  slug        String     @unique
+  sortOrder   Int        @default(0)
+  status      String     @default("ACTIVE")
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryTree")
+  primaryFor  Product[]  @relation("PrimaryCategory")
+  placements ProductCategory[]
+  @@index([parentId, sortOrder])
+}
+
+model Product {
+  id                String            @id @default(uuid())
+  primaryCategoryId String
+  name              String
+  slug              String            @unique
+  description       String
+  status            ProductStatus     @default(DRAFT)
+  featured          Boolean           @default(false)
+  featuredRank      Int?
+  publishedAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  primaryCategory   Category          @relation("PrimaryCategory", fields: [primaryCategoryId], references: [id])
+  placements        ProductCategory[]
+  variants          Variant[]
+  media             ProductMedia[]
+  @@index([status, featured, publishedAt])
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  @@id([productId, categoryId])
+}
+
+model Variant {
+  id              String         @id @default(uuid())
+  productId       String
+  sku             String         @unique
+  sizeLabel       String?
+  colorLabel      String?
+  regularPriceMinor Int
+  salePriceMinor  Int?
+  availableQty    Int            @default(0)
+  active          Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  product         Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  media           VariantMedia[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+  inventory       InventoryLedger[]
+  @@index([productId, active])
+  @@unique([productId, sizeLabel, colorLabel])
+}
+
+model MediaAsset {
+  id          String         @id @default(uuid())
+  objectKey   String         @unique
+  mime        String
+  width       Int
+  height      Int
+  bytes       Int
+  state       MediaState     @default(PENDING)
+  createdAt   DateTime       @default(now())
+  orphanedAt  DateTime?
+  purgeAfter  DateTime?
+  products    ProductMedia[]
+  variants    VariantMedia[]
+}
+
+model ProductMedia {
+  productId String
+  mediaId   String
+  sortOrder Int    @default(0)
+  altText   String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  media     MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  @@id([productId, mediaId])
+}
+
+model VariantMedia {
+  variantId String
+  mediaId   String
+  sortOrder Int    @default(0)
+  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  media     MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  @@id([variantId, mediaId])
+}
+
+model Cart {
+  id             String     @id @default(uuid())
+  userId         String?
+  guestTokenHash String?    @unique
+  updatedAt      DateTime   @updatedAt
+  user           User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items          CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(uuid())
+  cartId    String
+  variantId String
+  quantity  Int
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant   Variant @relation(fields: [variantId], references: [id])
+  @@unique([cartId, variantId])
+}
+
+model Order {
+  id                   String        @id @default(uuid())
+  publicOrderNumber    String        @unique
+  userId               String?
+  guestEmailNormalized String
+  contactPhoneEncrypted String
+  addressCiphertext    String
+  addressKeyVersion    String
+  status               OrderStatus   @default(RECEIVED)
+  paymentMethod        String        @default("COD_DEMO")
+  currency             String        @default("PKR")
+  subtotalMinor        Int
+  shippingMinor        Int?
+  discountMinor        Int           @default(0)
+  totalMinor           Int?
+  createdAt            DateTime      @default(now())
+  user                 User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items                OrderItem[]
+  inventoryLedger      InventoryLedger[]
+  idempotency          CheckoutIdempotency?
+  tracking             GuestTrackingVerification[]
+  statusEvents         OrderStatusEvent[]
+  @@index([userId, createdAt])
+}
+
+model OrderItem {
+  id                  String  @id @default(uuid())
+  orderId             String
+  variantId           String?
+  productNameSnapshot String
+  variantSnapshotJson Json
+  unitPriceMinor      Int
+  quantity            Int
+  lineTotalMinor      Int
+  order               Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant             Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+}
+
+model InventoryLedger {
+  id        String   @id @default(uuid())
+  variantId String
+  orderId   String?
+  deltaQty  Int
+  reason    String
+  actorId   String?
+  eventId   String   @unique
+  createdAt DateTime @default(now())
+  variant   Variant  @relation(fields: [variantId], references: [id])
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  @@index([variantId, createdAt])
+}
+
+model CheckoutIdempotency {
+  id                String   @id @default(uuid())
+  scopeHash         String
+  keyHash           String
+  requestFingerprint String
+  orderId           String?  @unique
+  state             String
+  responseSnapshot  Json?
+  createdAt         DateTime @default(now())
+  expiresAt         DateTime
+  order             Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  @@unique([scopeHash, keyHash])
+}
+
+model GuestTrackingVerification {
+  id          String    @id @default(uuid())
+  orderId     String
+  verifierHash String
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  attempts    Int       @default(0)
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model OrderStatusEvent {
+  id        String   @id @default(uuid())
+  orderId   String
+  fromStatus String?
+  toStatus  String
+  actorId   String?
+  reason    String?
+  createdAt DateTime @default(now())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model AuditEvent {
+  id           String   @id @default(uuid())
+  actorType    String
+  actorId      String?
+  action       String
+  targetType   String
+  targetId     String?
+  safeMetadata Json?
+  createdAt    DateTime @default(now())
+  @@index([actorId, createdAt])
+}

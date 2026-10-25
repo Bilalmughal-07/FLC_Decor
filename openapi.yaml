@@ -1,0 +1,83 @@
+openapi: 3.0.3
+info:
+  title: Fahad Laser / FLC Decor API
+  version: 0.1.0-demo
+  description: Synthetic local contract. Live checkout remains disabled until business and production policies are configured.
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /catalog:
+    get:
+      summary: Read synthetic catalog fixtures
+      responses:
+        '200': { description: Catalog response }
+  /health:
+    get:
+      summary: Liveness check
+      responses:
+        '200': { description: Service is responding }
+  /ready:
+    get:
+      summary: Readiness and demo policy state
+      responses:
+        '200': { description: Readiness response }
+  /checkout/quote:
+    post:
+      summary: Calculate a server-authoritative demo quote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartRequest' }
+      responses:
+        '200': { description: Quote response }
+        '409': { description: Invalid or unavailable cart }
+  /checkout/orders:
+    post:
+      summary: Create or replay an idempotent synthetic COD demo order
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema: { type: string, minLength: 12 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrderRequest' }
+      responses:
+        '201': { description: Demo order created }
+        '200': { description: Existing order replayed }
+        '409': { description: Stock or idempotency conflict }
+        '503': { description: Live checkout not configured }
+components:
+  schemas:
+    CartRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CartItem' }
+    CartItem:
+      type: object
+      required: [variantId, quantity]
+      properties:
+        variantId: { type: string }
+        quantity: { type: integer, minimum: 1 }
+    OrderRequest:
+      allOf:
+        - $ref: '#/components/schemas/CartRequest'
+        - type: object
+          required: [email, phone, address]
+          properties:
+            email: { type: string, format: email }
+            phone: { type: string }
+            address:
+              type: object
+              required: [name, line1, city]
+              properties:
+                name: { type: string }
+                line1: { type: string }
+                city: { type: string }
+                notes: { type: string }
