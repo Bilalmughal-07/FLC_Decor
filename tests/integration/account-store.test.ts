@@ -1,0 +1,41 @@
+import { afterAll, describe, expect, it } from "vitest";
+import { randomUUID } from "node:crypto";
+import { createAddress, deleteAddress, listAddresses, readProfile, setDefaultAddress, updateProfile } from "@/lib/account-store";
+import { getPrisma } from "@/lib/prisma";
+import { GET as profileGet } from "@/app/api/account/profile/route";
+
+if (process.env.RUN_POSTGRES_INTEGRATION === "true") describe("PostgreSQL customer profile and encrypted addresses", () => {
+  const prisma = getPrisma();
+  const account = { id: randomUUID(), email: `${randomUUID().slice(0, 8)}@example.test` };
+  afterAll(async () => { await prisma.$disconnect(); });
+  it("denies anonymous profile access", async () => { expect((await profileGet(new Request("http://localhost/api/account/profile"))).status).toBe(401); });
+  it("stores address details encrypted and scopes deletion to the owner", async () => {
+    process.env.AUTH_RUNTIME = "demo";
+    process.env.CHECKOUT_FIELD_ENCRYPTION_KEY = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff";
+    expect((await readProfile(account)).email).toBe(account.email);
+    expect((await updateProfile(account, { displayName: "Synthetic CI Person" })).displayName).toBe("Synthetic CI Person");
+    const address = { recipientFirst: "Synthetic", recipientLast: "Person", address1: "100 Fake Test Road", city: "Test City", phone: "03000000001", isDefault: true };
+    const first = await createAddress(account, address);
+    const second = await createAddress(account, { ...address, address1: "200 Fake Test Road" });
+    expect((await listAddresses(account)).map((row) => row.address1)).toEqual(expect.arrayContaining(["100 Fake Test Road", "200 Fake Test Road"]));
+    const stored = await prisma.customerAddress.findUniqueOrThrow({ where: { id: first.id } });
+    expect(stored.address1).toBe("ENCRYPTED");
+    expect(stored.privateDataCiphertext).toMatch(/^v1\./);
+    expect(stored.address1).not.toContain("Fake Test Road");
+    expect(await prisma.customerAddress.count({ where: { customerId: stored.customerId, isDefault: true } })).toBe(1);
+    const concurrentDefaults = await Promise.all(["300 Fake Test Road", "400 Fake Test Road"].map((address1) => createAddress(account, { ...address, address1 })));
+    expect(concurrentDefaults).toHaveLength(2);
+    expect(await prisma.customerAddress.count({ where: { customerId: stored.customerId, isDefault: true } })).toBe(1);
+    expect((await setDefaultAddress(account, first.id)).isDefault).toBe(true);
+    expect(await prisma.customerAddress.count({ where: { customerId: stored.customerId, isDefault: true } })).toBe(1);
+    expect(await prisma.customerAddress.findUnique({ where: { id: first.id } }).then((row) => row?.isDefault)).toBe(true);
+    await expect(setDefaultAddress({ id: randomUUID(), email: `${randomUUID()}@example.test` }, first.id)).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(deleteAddress({ id: randomUUID(), email: `${randomUUID()}@example.test` }, first.id)).rejects.toMatchObject({ code: "NOT_FOUND" });
+    expect(await prisma.customerAddress.count({ where: { id: first.id } })).toBe(1);
+    await deleteAddress(account, second.id);
+    expect(await prisma.customerAddress.count({ where: { id: second.id } })).toBe(0);
+    expect(await prisma.auditEvent.count({ where: { action: "ADDRESS_DELETED", targetId: second.id } })).toBe(1);
+    expect(await prisma.auditEvent.count({ where: { action: "DEFAULT_ADDRESS_CHANGED", targetId: first.id } })).toBe(1);
+  });
+});
+else describe.skip("PostgreSQL customer profile and encrypted addresses", () => { it("requires RUN_POSTGRES_INTEGRATION=true", () => {}); });

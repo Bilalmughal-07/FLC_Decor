@@ -28,32 +28,120 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum FulfillmentStatus {
+  PLACED
+  CONFIRMED
+  PREPARING
+  SHIPPED
+  DELIVERED
+  CANCELED
+  RETURN_REQUESTED
+  RETURNED
+  EXCEPTION
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  FAILED
+  REFUND_PENDING
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  EASYPAISA
+  JAZZCASH
+  CARD
+}
+
+enum InventoryMovementKind {
+  BASELINE_IMPORT
+  RECEIPT
+  RESERVE
+  RELEASE
+  SHIP
+  RETURN_INSPECTED
+  ADJUSTMENT
+}
+
+enum ReservationState {
+  ACTIVE
+  COMMITTED
+  RELEASED
+}
+
+enum PaymentIntentState {
+  PENDING
+  REQUIRES_ACTION
+  AUTHORIZED
+  PAID
+  FAILED
+  CANCELED
+  REFUND_PENDING
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
+
+enum PaymentTransactionKind {
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  COD_COLLECTED
+  REFUNDED
+  REVERSED
+}
+
+enum OutboxState {
+  PENDING
+  PROCESSING
+  RETRY
+  COMPLETED
+  DEAD
+}
+
+enum NotificationState {
+  QUEUED
+  ACCEPTED
+  DELIVERED
+  FAILED
+}
+
+enum FulfillmentSource {
+  GUEST
+  CUSTOMER
+  ADMIN
+}
+
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String
-  role         String    @default("CUSTOMER")
-  status       String    @default("ACTIVE")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  sessions     Session[]
-  orders       Order[]
-  carts        Cart[]
-  mfaFactors   MfaFactor[]
+  id            String               @id @default(uuid())
+  email         String               @unique
+  passwordHash  String
+  role          String               @default("CUSTOMER")
+  status        String               @default("ACTIVE")
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  sessions      Session[]
+  orders        Order[]
+  carts         Cart[]
+  mfaFactors    MfaFactor[]
   recoveryCodes MfaRecoveryCode[]
-  resetTokens  PasswordResetToken[]
+  resetTokens   PasswordResetToken[]
 }
 
 model MfaFactor {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   userId           String
   kind             String
   secretCiphertext String
   keyVersion       String
   enabledAt        DateTime?
   lastAcceptedStep BigInt?
-  createdAt        DateTime @default(now())
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, kind])
 }
 
@@ -63,6 +151,7 @@ model MfaRecoveryCode {
   codeHash String
   usedAt   DateTime?
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, usedAt])
 }
 
@@ -74,31 +163,36 @@ model PasswordResetToken {
   usedAt    DateTime?
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, expiresAt])
 }
 
 model Session {
-  id        String   @id @default(uuid())
-  userId    String
-  tokenHash String   @unique
-  expiresAt DateTime
-  revokedAt DateTime?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String    @id @default(uuid())
+  userId        String
+  tokenHash     String    @unique
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  mfaVerifiedAt DateTime?
+  createdAt     DateTime  @default(now())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId, expiresAt])
 }
 
 model Category {
-  id          String     @id @default(uuid())
-  parentId    String?
-  name        String
-  slug        String     @unique
-  sortOrder   Int        @default(0)
-  status      String     @default("ACTIVE")
-  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryTree")
-  primaryFor  Product[]  @relation("PrimaryCategory")
+  id         String            @id @default(uuid())
+  parentId   String?
+  name       String
+  slug       String            @unique
+  sortOrder  Int               @default(0)
+  status     String            @default("ACTIVE")
+  parent     Category?         @relation("CategoryTree", fields: [parentId], references: [id])
+  children   Category[]        @relation("CategoryTree")
+  primaryFor Product[]         @relation("PrimaryCategory")
   placements ProductCategory[]
+
+  @@index([parentId, slug])
   @@index([parentId, sortOrder])
 }
 
@@ -118,6 +212,7 @@ model Product {
   placements        ProductCategory[]
   variants          Variant[]
   media             ProductMedia[]
+
   @@index([status, featured, publishedAt])
 }
 
@@ -126,60 +221,71 @@ model ProductCategory {
   categoryId String
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   @@id([productId, categoryId])
 }
 
 model Variant {
-  id              String         @id @default(uuid())
-  productId       String
-  sku             String         @unique
-  sizeLabel       String?
-  colorLabel      String?
+  id                String                @id @default(uuid())
+  productId         String
+  sku               String                @unique
+  sizeLabel         String?
+  colorLabel        String?
   regularPriceMinor Int
-  salePriceMinor  Int?
-  availableQty    Int            @default(0)
-  active          Boolean        @default(true)
-  createdAt       DateTime       @default(now())
-  product         Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  media           VariantMedia[]
-  cartItems       CartItem[]
-  orderItems      OrderItem[]
-  inventory       InventoryLedger[]
-  @@index([productId, active])
+  salePriceMinor    Int?
+  availableQty      Int                   @default(0)
+  active            Boolean               @default(true)
+  createdAt         DateTime              @default(now())
+  product           Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  media             VariantMedia[]
+  cartItems         CartItem[]
+  orderItems        OrderItem[]
+  inventory         InventoryLedger[]
+  balances          InventoryBalance[]
+  movements         InventoryMovement[]
+  reservations      StockReservation[]
+  priceHistory      ProductPriceHistory[]
+
   @@unique([productId, sizeLabel, colorLabel])
+  @@index([productId, active])
 }
 
 model MediaAsset {
-  id          String         @id @default(uuid())
-  objectKey   String         @unique
-  mime        String
-  width       Int
-  height      Int
-  bytes       Int
-  state       MediaState     @default(PENDING)
-  createdAt   DateTime       @default(now())
-  orphanedAt  DateTime?
-  purgeAfter  DateTime?
-  products    ProductMedia[]
-  variants    VariantMedia[]
+  id                  String         @id @default(uuid())
+  objectKey           String         @unique
+  mime                String
+  width               Int
+  height              Int
+  bytes               Int
+  state               MediaState     @default(PENDING)
+  createdAt           DateTime       @default(now())
+  orphanedAt          DateTime?
+  purgeAfter          DateTime?
+  checksumSha256      String?
+  ownerAuthUserId     String?
+  processingErrorCode String?
+  products            ProductMedia[]
+  variants            VariantMedia[]
 }
 
 model ProductMedia {
   productId String
   mediaId   String
-  sortOrder Int    @default(0)
+  sortOrder Int        @default(0)
   altText   String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
   media     MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
   @@id([productId, mediaId])
 }
 
 model VariantMedia {
   variantId String
   mediaId   String
-  sortOrder Int    @default(0)
-  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  sortOrder Int        @default(0)
+  variant   Variant    @relation(fields: [variantId], references: [id], onDelete: Cascade)
   media     MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
   @@id([variantId, mediaId])
 }
 
@@ -190,6 +296,9 @@ model Cart {
   updatedAt      DateTime   @updatedAt
   user           User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   items          CartItem[]
+  currency       String     @default("PKR")
+  state          String     @default("ACTIVE")
+  expiresAt      DateTime?  @db.Timestamptz(6)
 }
 
 model CartItem {
@@ -199,38 +308,58 @@ model CartItem {
   quantity  Int
   cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   variant   Variant @relation(fields: [variantId], references: [id])
+
   @@unique([cartId, variantId])
 }
 
 model Order {
-  id                   String        @id @default(uuid())
-  publicOrderNumber    String        @unique
-  userId               String?
-  guestEmailNormalized String
+  id                    String                      @id @default(uuid())
+  publicOrderNumber     String                      @unique
+  userId                String?
+  guestEmailNormalized  String
   contactPhoneEncrypted String
-  addressCiphertext    String
-  addressKeyVersion    String
-  status               OrderStatus   @default(RECEIVED)
-  paymentMethod        String        @default("COD_DEMO")
-  currency             String        @default("PKR")
-  subtotalMinor        Int
-  shippingMinor        Int?
-  taxMinor             Int           @default(0)
-  discountMinor        Int           @default(0)
-  totalMinor           Int?
-  createdAt            DateTime      @default(now())
-  user                 User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  items                OrderItem[]
-  inventoryLedger      InventoryLedger[]
-  idempotency          CheckoutIdempotency?
-  tracking             GuestTrackingVerification[]
-  statusEvents         OrderStatusEvent[]
+  addressCiphertext     String
+  addressKeyVersion     String
+  status                OrderStatus                 @default(RECEIVED)
+  paymentMethod         String                      @default("COD_DEMO")
+  currency              String                      @default("PKR")
+  subtotalMinor         Int
+  shippingMinor         Int?
+  taxMinor              Int                         @default(0)
+  discountMinor         Int                         @default(0)
+  totalMinor            Int?
+  createdAt             DateTime                    @default(now())
+  placedAt              DateTime                    @default(now()) @db.Timestamptz(6)
+  fulfillmentStatus     FulfillmentStatus?
+  paymentStatus         PaymentStatus?
+  source                FulfillmentSource           @default(GUEST)
+  countryCode           String                      @default("PK")
+  customerProfileId     String?
+  user                  User?                       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  customerProfile       CustomerProfile?            @relation(fields: [customerProfileId], references: [id], onDelete: SetNull)
+  items                 OrderItem[]
+  inventoryLedger       InventoryLedger[]
+  idempotency           CheckoutIdempotency?
+  tracking              GuestTrackingVerification[]
+  statusEvents          OrderStatusEvent[]
+  addressSnapshot       OrderAddressSnapshot?
+  reservations          StockReservation[]
+  shipments             Shipment[]
+  paymentIntents        PaymentIntent[]
+  refunds               Refund[]
+  notifications         Notification[]
+  guestChallenges       GuestTrackingChallenge[]
+  guestCapabilities     GuestTrackingCapability[]
+
   @@index([userId, createdAt])
   @@index([guestEmailNormalized, createdAt])
+  @@index([customerProfileId, placedAt(sort: Desc), id(sort: Desc)], map: "Order_customerProfile_placedAt_id_idx")
+  @@index([fulfillmentStatus, placedAt(sort: Desc), id(sort: Desc)], map: "Order_fulfillment_placedAt_id_idx")
+  @@index([paymentStatus, placedAt(sort: Desc), id(sort: Desc)], map: "Order_payment_placedAt_id_idx")
 }
 
 model OrderItem {
-  id                  String  @id @default(uuid())
+  id                  String         @id @default(uuid())
   orderId             String
   variantId           String?
   productNameSnapshot String
@@ -238,8 +367,12 @@ model OrderItem {
   unitPriceMinor      Int
   quantity            Int
   lineTotalMinor      Int
-  order               Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  variant             Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  discountMinor       Int            @default(0)
+  taxMinor            Int            @default(0)
+  currency            String         @default("PKR")
+  order               Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant             Variant?       @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  shipments           ShipmentItem[]
 }
 
 model InventoryLedger {
@@ -253,43 +386,52 @@ model InventoryLedger {
   createdAt DateTime @default(now())
   variant   Variant  @relation(fields: [variantId], references: [id])
   order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
   @@index([variantId, createdAt])
 }
 
 model CheckoutIdempotency {
-  id                String   @id @default(uuid())
-  scopeHash         String
-  keyHash           String
+  id                 String   @id @default(uuid())
+  scopeHash          String
+  keyHash            String
   requestFingerprint String
-  orderId           String?  @unique
-  state             String
-  responseSnapshot  Json?
-  createdAt         DateTime @default(now())
-  expiresAt         DateTime
-  order             Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  orderId            String?  @unique
+  state              String
+  responseSnapshot   Json?
+  createdAt          DateTime @default(now())
+  expiresAt          DateTime
+  order              Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
   @@unique([scopeHash, keyHash])
 }
 
 model GuestTrackingVerification {
-  id          String    @id @default(uuid())
-  orderId     String
-  verifierHash String
-  expiresAt   DateTime
-  consumedAt  DateTime?
-  attempts    Int       @default(0)
-  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id              String    @id @default(uuid())
+  orderId         String
+  verifierHash    String
+  expiresAt       DateTime
+  consumedAt      DateTime?
+  attempts        Int       @default(0)
+  destinationHash String?
+  purpose         String    @default("ORDER_TRACKING")
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
   @@index([orderId, expiresAt])
 }
 
 model OrderStatusEvent {
-  id        String   @id @default(uuid())
-  orderId   String
-  fromStatus String?
-  toStatus  String
-  actorId   String?
-  reason    String?
-  createdAt DateTime @default(now())
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id            String   @id @default(uuid())
+  orderId       String
+  fromStatus    String?
+  toStatus      String
+  actorId       String?
+  reason        String?
+  createdAt     DateTime @default(now())
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  actorType     String   @default("SYSTEM")
+  correlationId String?
+
+  @@index([orderId, createdAt, id], map: "OrderStatusEvent_order_created_id_idx")
 }
 
 model AuditEvent {
@@ -301,5 +443,439 @@ model AuditEvent {
   targetId     String?
   safeMetadata Json?
   createdAt    DateTime @default(now())
+  requestId    String?
+
+  @@index([targetType, targetId, createdAt], map: "AuditEvent_target_created_idx")
   @@index([actorId, createdAt])
+}
+
+// Production-oriented relational foundation. New production models are not
+// enabled by the local demo runtime merely by existing in the schema.
+model CustomerProfile {
+  id              String            @id @default(uuid())
+  authUserId      String?           @unique
+  displayName     String?
+  normalizedEmail String?           @unique
+  normalizedPhone String?
+  status          String            @default("ACTIVE")
+  createdAt       DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime          @default(now()) @updatedAt @db.Timestamptz(6)
+  addresses       CustomerAddress[]
+  consents        CustomerConsent[]
+  orders          Order[]
+
+  @@index([normalizedPhone])
+}
+
+model CustomerAddress {
+  id                    String          @id @default(uuid())
+  customerId            String
+  privateDataCiphertext String?
+  label                 String?
+  recipientFirst        String
+  recipientLast         String
+  address1              String
+  address2              String?
+  city                  String
+  region                String?
+  postalCode            String?
+  countryCode           String          @default("PK")
+  phone                 String
+  isDefault             Boolean         @default(false)
+  createdAt             DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime        @default(now()) @updatedAt @db.Timestamptz(6)
+  customer              CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, isDefault])
+}
+
+model CustomerConsent {
+  id          String          @id @default(uuid())
+  customerId  String
+  purpose     String
+  channel     String
+  version     String
+  grantedAt   DateTime?       @db.Timestamptz(6)
+  revokedAt   DateTime?       @db.Timestamptz(6)
+  evidenceRef String?
+  createdAt   DateTime        @default(now()) @db.Timestamptz(6)
+  customer    CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  @@index([customerId, purpose, createdAt], map: "CustomerConsent_customer_purpose_created_idx")
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  code        String           @unique
+  description String?
+  assignments UserRole[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  code        String           @unique
+  description String?
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Restrict)
+
+  @@id([roleId, permissionId])
+}
+
+model UserRole {
+  id         String    @id @default(uuid())
+  authUserId String
+  roleId     String
+  grantedBy  String?
+  grantedAt  DateTime  @default(now()) @db.Timestamptz(6)
+  revokedAt  DateTime? @db.Timestamptz(6)
+  role       Role      @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@unique([authUserId, roleId, grantedAt])
+  @@index([authUserId, revokedAt])
+}
+
+model InventoryLocation {
+  id           String              @id @default(uuid())
+  code         String              @unique
+  name         String
+  active       Boolean             @default(false)
+  createdAt    DateTime            @default(now()) @db.Timestamptz(6)
+  balances     InventoryBalance[]
+  movements    InventoryMovement[]
+  reservations StockReservation[]
+}
+
+model InventoryBalance {
+  id         String            @id @default(uuid())
+  variantId  String
+  locationId String
+  onHand     Int               @default(0)
+  reserved   Int               @default(0)
+  version    Int               @default(0)
+  updatedAt  DateTime          @default(now()) @updatedAt @db.Timestamptz(6)
+  variant    Variant           @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  location   InventoryLocation @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([variantId, locationId])
+  @@index([locationId, variantId])
+}
+
+model InventoryMovement {
+  id              String                @id @default(uuid())
+  variantId       String
+  locationId      String
+  deltaOnHand     Int
+  deltaReserved   Int
+  kind            InventoryMovementKind
+  referenceType   String?
+  referenceId     String?
+  eventId         String                @unique
+  actorAuthUserId String?
+  reason          String?
+  occurredAt      DateTime              @default(now()) @db.Timestamptz(6)
+  variant         Variant               @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  location        InventoryLocation     @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@index([variantId, occurredAt, id])
+  @@index([referenceType, referenceId])
+}
+
+model StockReservation {
+  id          String            @id @default(uuid())
+  orderId     String
+  variantId   String
+  locationId  String
+  quantity    Int
+  state       ReservationState  @default(ACTIVE)
+  createdAt   DateTime          @default(now()) @db.Timestamptz(6)
+  committedAt DateTime?         @db.Timestamptz(6)
+  releasedAt  DateTime?         @db.Timestamptz(6)
+  order       Order             @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  variant     Variant           @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  location    InventoryLocation @relation(fields: [locationId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, variantId, locationId], map: "StockReservation_order_variant_location_key")
+  @@index([state, createdAt])
+}
+
+model OrderAddressSnapshot {
+  id                       String   @id @default(uuid())
+  orderId                  String   @unique
+  recipientFirstCiphertext String
+  recipientLastCiphertext  String
+  phoneCiphertext          String
+  address1Ciphertext       String
+  address2Ciphertext       String?
+  cityCiphertext           String
+  regionCiphertext         String?
+  postalCodeCiphertext     String?
+  countryCode              String   @default("PK")
+  keyVersion               String
+  createdAt                DateTime @default(now()) @db.Timestamptz(6)
+  order                    Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+}
+
+model ProductPriceHistory {
+  id                 String   @id @default(uuid())
+  variantId          String
+  previousPriceMinor Int?
+  newPriceMinor      Int
+  currency           String   @default("PKR")
+  effectiveAt        DateTime @default(now()) @db.Timestamptz(6)
+  actorAuthUserId    String?
+  reason             String?
+  variant            Variant  @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@index([variantId, effectiveAt])
+}
+
+model Shipment {
+  id             String                  @id @default(uuid())
+  orderId        String
+  courierCode    String?
+  trackingNumber String?
+  serviceCode    String?
+  shippingMinor  Int?
+  currency       String                  @default("PKR")
+  state          String                  @default("PENDING")
+  shippedAt      DateTime?               @db.Timestamptz(6)
+  deliveredAt    DateTime?               @db.Timestamptz(6)
+  createdAt      DateTime                @default(now()) @db.Timestamptz(6)
+  order          Order                   @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  items          ShipmentItem[]
+  trackingEvents ShipmentTrackingEvent[]
+
+  @@index([orderId, createdAt])
+}
+
+model ShipmentItem {
+  shipmentId  String
+  orderItemId String
+  quantity    Int
+  shipment    Shipment  @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@id([shipmentId, orderItemId])
+}
+
+model ShipmentTrackingEvent {
+  id              String   @id @default(uuid())
+  shipmentId      String
+  providerCode    String
+  externalEventId String
+  status          String
+  locationSummary String?
+  eventAt         DateTime @db.Timestamptz(6)
+  ingestedAt      DateTime @default(now()) @db.Timestamptz(6)
+  shipment        Shipment @relation(fields: [shipmentId], references: [id], onDelete: Restrict)
+
+  @@unique([providerCode, externalEventId], map: "ShipmentTrackingEvent_provider_external_key")
+  @@index([shipmentId, eventAt])
+}
+
+model PaymentIntent {
+  id                String             @id @default(uuid())
+  orderId           String
+  method            PaymentMethod
+  providerCode      String?
+  amountMinor       Int
+  currency          String             @default("PKR")
+  state             PaymentIntentState @default(PENDING)
+  idempotencyRef    String             @unique
+  providerReference String?
+  createdAt         DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime           @default(now()) @updatedAt @db.Timestamptz(6)
+  order             Order              @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  attempts          PaymentAttempt[]
+
+  @@index([orderId, state])
+}
+
+model PaymentAttempt {
+  id                String               @id @default(uuid())
+  intentId          String
+  providerRequestId String?
+  state             String
+  responseCode      String?
+  safeMetadata      Json?
+  initiatedAt       DateTime             @default(now()) @db.Timestamptz(6)
+  completedAt       DateTime?            @db.Timestamptz(6)
+  intent            PaymentIntent        @relation(fields: [intentId], references: [id], onDelete: Restrict)
+  transactions      PaymentTransaction[]
+
+  @@unique([providerRequestId])
+  @@index([intentId, initiatedAt])
+}
+
+model PaymentTransaction {
+  id                    String                 @id @default(uuid())
+  attemptId             String
+  providerCode          String?
+  providerTransactionId String?
+  kind                  PaymentTransactionKind
+  amountMinor           Int
+  currency              String                 @default("PKR")
+  occurredAt            DateTime               @db.Timestamptz(6)
+  createdAt             DateTime               @default(now()) @db.Timestamptz(6)
+  attempt               PaymentAttempt         @relation(fields: [attemptId], references: [id], onDelete: Restrict)
+  refunds               Refund[]
+
+  @@unique([providerCode, providerTransactionId], map: "PaymentTransaction_provider_ref_key")
+  @@index([attemptId, occurredAt])
+}
+
+model PaymentWebhookEvent {
+  id                String    @id @default(uuid())
+  providerCode      String
+  externalEventId   String
+  signatureVerified Boolean   @default(false)
+  payloadDigest     String
+  processingResult  String?
+  receivedAt        DateTime  @default(now()) @db.Timestamptz(6)
+  processedAt       DateTime? @db.Timestamptz(6)
+
+  @@unique([providerCode, externalEventId], map: "PaymentWebhookEvent_provider_event_key")
+  @@index([providerCode, receivedAt], map: "PaymentWebhookEvent_provider_receivedAt_idx")
+}
+
+model Refund {
+  id                String              @id @default(uuid())
+  orderId           String
+  transactionId     String?
+  amountMinor       Int
+  currency          String              @default("PKR")
+  reasonCode        String
+  state             String
+  providerReference String?
+  requestedBy       String?
+  requestedAt       DateTime            @default(now()) @db.Timestamptz(6)
+  processedAt       DateTime?           @db.Timestamptz(6)
+  order             Order               @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  transaction       PaymentTransaction? @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, requestedAt])
+}
+
+model PaymentReconciliation {
+  id               String   @id @default(uuid())
+  providerCode     String
+  periodStart      DateTime @db.Timestamptz(6)
+  periodEnd        DateTime @db.Timestamptz(6)
+  expectedMinor    Int
+  settledMinor     Int
+  currency         String   @default("PKR")
+  discrepancyMinor Int      @default(0)
+  state            String
+  actorAuthUserId  String?
+  createdAt        DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([providerCode, periodStart, periodEnd], map: "PaymentReconciliation_provider_period_idx")
+}
+
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  aggregateType  String
+  aggregateId    String
+  eventType      String
+  payloadVersion Int          @default(1)
+  payload        Json
+  dedupeKey      String       @unique
+  state          OutboxState  @default(PENDING)
+  attempts       Int          @default(0)
+  availableAt    DateTime     @default(now()) @db.Timestamptz(6)
+  createdAt      DateTime     @default(now()) @db.Timestamptz(6)
+  processedAt    DateTime?    @db.Timestamptz(6)
+  jobAttempts    JobAttempt[]
+
+  @@index([state, availableAt])
+  @@index([aggregateType, aggregateId, createdAt], map: "OutboxEvent_aggregate_createdAt_idx")
+}
+
+model JobAttempt {
+  id            String      @id @default(uuid())
+  outboxEventId String
+  workerCode    String
+  attemptNumber Int
+  result        String
+  errorCategory String?
+  startedAt     DateTime    @default(now()) @db.Timestamptz(6)
+  finishedAt    DateTime?   @db.Timestamptz(6)
+  outboxEvent   OutboxEvent @relation(fields: [outboxEventId], references: [id], onDelete: Restrict)
+
+  @@unique([outboxEventId, attemptNumber], map: "JobAttempt_outbox_attempt_key")
+}
+
+model Notification {
+  id           String                 @id @default(uuid())
+  orderId      String?
+  eventKey     String
+  channel      String
+  recipientRef String
+  dedupeKey    String                 @unique
+  state        NotificationState      @default(QUEUED)
+  createdAt    DateTime               @default(now()) @db.Timestamptz(6)
+  order        Order?                 @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  deliveries   NotificationDelivery[]
+
+  @@index([state, createdAt])
+}
+
+model NotificationDelivery {
+  id                String            @id @default(uuid())
+  notificationId    String
+  providerCode      String
+  attemptNumber     Int
+  providerMessageId String?
+  state             NotificationState
+  errorCode         String?
+  attemptedAt       DateTime          @default(now()) @db.Timestamptz(6)
+  acknowledgedAt    DateTime?         @db.Timestamptz(6)
+  notification      Notification      @relation(fields: [notificationId], references: [id], onDelete: Restrict)
+
+  @@unique([notificationId, attemptNumber], map: "NotificationDelivery_notification_attempt_key")
+}
+
+model GuestTrackingChallenge {
+  id              String    @id @default(uuid())
+  orderId         String
+  channel         String
+  destinationHash String
+  challengeHash   String
+  expiresAt       DateTime  @db.Timestamptz(6)
+  consumedAt      DateTime? @db.Timestamptz(6)
+  attempts        Int       @default(0)
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, expiresAt], map: "GuestTrackingChallenge_order_expiry_idx")
+  @@index([destinationHash, createdAt], map: "GuestTrackingChallenge_destination_created_idx")
+}
+
+model GuestTrackingCapability {
+  id        String    @id @default(uuid())
+  orderId   String
+  tokenHash String    @unique
+  scope     String
+  expiresAt DateTime  @db.Timestamptz(6)
+  revokedAt DateTime? @db.Timestamptz(6)
+  usedAt    DateTime? @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, expiresAt], map: "GuestTrackingCapability_order_expiry_idx")
+}
+
+model SystemSetting {
+  key       String   @id
+  value     Json
+  version   Int      @default(1)
+  changedBy String?
+  changedAt DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 }

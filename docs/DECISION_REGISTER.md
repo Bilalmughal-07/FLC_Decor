@@ -11,13 +11,15 @@ This register isolates unresolved owner approvals from technical decisions. No i
 | Shipping zones, courier and fees | `NOT_CONFIGURED`; live quote rejects | No approved pricing or courier contract |
 | Tax applicability/calculation | `NOT_CONFIGURED`; live quote rejects | Requires business/tax confirmation |
 | Returns, refunds and cancellation | No live action | Legal/operational policy not supplied |
-| Order status transition map | Demo `RECEIVED` only | Operations must define legal transitions |
+| Order status transition map | Test-only COD state machine; production rejects | Operations must define legal transitions and evidence |
 | COD reservation/release policy | Stock is only deducted on accepted demo order | Owner explicitly disallows generic unpaid expiry release |
-| Contact email, phone, address and WhatsApp | `NOT_CONFIGURED` | No real public contact data supplied |
+| Contact email, phone, address and WhatsApp | Owner-confirmed details centralized in `lib/business-contact.ts` | Reconfirm before public launch |
 | Customer MFA requirement | Optional TOTP per SRS | Do not silently make it mandatory |
 | Legal/data retention periods | Unconfigured | Requires counsel/owner approval |
 | RPO/RTO and backup plan | Targets recorded in SRS only | Need provider and restore evidence |
 | Production identity/storage/database providers | Local adapters and interfaces | No credentials or paid services authorized |
+| Payment methods/providers | Schema supports four method codes; none active | Existing SRS says COD only; newer addendum names COD/Easypaisa/JazzCash/cards; owner and merchant decision required |
+| Production PostgreSQL migration target | No hosted migration applied; all nine migrations pass in isolated local PostgreSQL | Hosted execution needs explicit approval and restore evidence |
 | Final catalog media, prices and copy | Synthetic fixtures clearly labeled | Owner assets/approvals absent |
 
 ## Safe technical decisions for this run

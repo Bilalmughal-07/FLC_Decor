@@ -1,12 +1,17 @@
 node_modules/
 .next/
+.next-*/
 out/
 dist/
 coverage/
 playwright-report/
 test-results/
+.postgres-test/
 .env*
 !.env.example
+!.env.staging.example
+client_secret_*.json
+.tmp-ink-bleed-reference-*/
 *.log
 *.tsbuildinfo
 prisma/dev.db

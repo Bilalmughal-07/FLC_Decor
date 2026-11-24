@@ -1,5 +1,6 @@
 import sharp from "sharp";
-import { randomBytes } from "node:crypto";
+import { createHash } from "node:crypto";
+import { createMediaObjectKeys } from "@/lib/r2-storage";
 
 export const MEDIA_LIMITS = { maxBytes: 10 * 1024 * 1024, maxPixels: 40_000_000, maxDimension: 8_000 } as const;
 export class MediaValidationError extends Error { constructor(message: string) { super(message); this.name = "MediaValidationError"; } }
@@ -14,11 +15,28 @@ export async function validateAndReencodeImage(buffer: Buffer, declaredMime?: st
   const detected = sniff(buffer);
   if (!detected || (declaredMime && !["image/jpeg", "image/png", "image/webp"].includes(declaredMime))) throw new MediaValidationError("IMAGE_TYPE_NOT_ALLOWED");
   try {
-    const image = sharp(buffer, { limitInputPixels: MEDIA_LIMITS.maxPixels, failOn: "error" });
+    const image = sharp(buffer, { limitInputPixels: MEDIA_LIMITS.maxPixels, failOn: "error", sequentialRead: true });
     const metadata = await image.metadata();
     if (!metadata.width || !metadata.height || metadata.width > MEDIA_LIMITS.maxDimension || metadata.height > MEDIA_LIMITS.maxDimension || metadata.width * metadata.height > MEDIA_LIMITS.maxPixels) throw new MediaValidationError("IMAGE_DIMENSIONS_NOT_ALLOWED");
-    const encoded = await image.rotate().webp({ quality: 86 }).toBuffer();
-    return { buffer: encoded, mime: "image/webp" as const, width: metadata.width, height: metadata.height, bytes: encoded.length, detectedFormat: detected, objectKey: `quarantine/${new Date().toISOString().slice(0, 10)}/${randomBytes(18).toString("hex")}.webp` };
+    const normalized = image.rotate();
+    const mainResult = await normalized.clone().resize({ width: 2400, height: 2400, fit: "inside", withoutEnlargement: true }).webp({ quality: 86, effort: 4 }).toBuffer({ resolveWithObject: true });
+    const thumbResult = await normalized.clone().resize({ width: 480, height: 480, fit: "inside", withoutEnlargement: true }).webp({ quality: 78, effort: 4 }).toBuffer({ resolveWithObject: true });
+    const objectKeys = createMediaObjectKeys();
+    return {
+      buffer: mainResult.data,
+      thumbnailBuffer: thumbResult.data,
+      mime: "image/webp" as const,
+      width: mainResult.info.width,
+      height: mainResult.info.height,
+      bytes: mainResult.data.length,
+      thumbnailWidth: thumbResult.info.width,
+      thumbnailHeight: thumbResult.info.height,
+      thumbnailBytes: thumbResult.data.length,
+      checksumSha256: createHash("sha256").update(mainResult.data).digest("hex"),
+      detectedFormat: detected,
+      objectKey: objectKeys.main,
+      thumbnailObjectKey: objectKeys.thumbnail,
+    };
   } catch (error) {
     if (error instanceof MediaValidationError) throw error;
     throw new MediaValidationError("IMAGE_DECODE_FAILED");

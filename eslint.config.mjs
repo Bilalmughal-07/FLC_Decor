@@ -7,6 +7,7 @@ const config = defineConfig([
   ...nextTs,
   globalIgnores([
     ".next/**",
+    ".next-e2e/**",
     "node_modules/**",
     "coverage/**",
     "playwright-report/**",

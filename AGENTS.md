@@ -50,3 +50,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## UI design system
+
+- Read `PRODUCT.md` and `DESIGN.md` before changing customer-facing or admin UI.
+- Preserve the FLC Decor editorial system: warm ivory, charcoal, restrained brass/sage, display serif plus readable body sans, stable product media frames, visible focus states, and reduced-motion support.
+- Do not introduce UI-library dependencies or motion effects unless they solve a documented interaction problem and pass responsive/accessibility checks.
+- Do not replace sample CSS artwork with unlicensed or scraped imagery; use the approved media workflow and keep sample states labelled.

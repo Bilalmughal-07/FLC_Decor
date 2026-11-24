@@ -1,6 +1,8 @@
 # Database Design — PostgreSQL Logical Model
 
-**Status:** proposed normalized schema; generate actual migrations after review. All IDs UUID/ULID as appropriate; timestamps UTC; money integer paisa (or consistent integer minor units), currency `PKR`.
+**Status:** production-oriented additive Prisma schema and migrations through `0004_production_database_foundation` exist. The latest migration is NOT applied/verified against a running PostgreSQL server; existing migrations and rows must be preserved. IDs follow the existing UUID-as-text convention; new timestamps use UTC `timestamptz`; money is integer PKR paisa.
+
+See [`docs/database/EXISTING_SCHEMA_AUDIT.md`](./docs/database/EXISTING_SCHEMA_AUDIT.md), [`docs/database/DATA_DICTIONARY.md`](./docs/database/DATA_DICTIONARY.md), and [`docs/database/DB_IMPLEMENTATION_TRACKER.md`](./docs/database/DB_IMPLEMENTATION_TRACKER.md) for the actual mapping and current gate status.
 
 ## Tables and key fields
 - `users(id, email_normalized UNIQUE, password_hash, status, created_at, updated_at)`; guest orders may have `user_id NULL`.
@@ -35,6 +37,7 @@
 - categories parent; product_categories `(category_id,product_id)`; orders `(user_id,created_at DESC)`, `(guest_email_normalized,created_at DESC)` with privacy safeguards.
 - inventory_ledger `(variant_id,created_at)`; audit `(actor_id,created_at)`; outbox `(state,created_at)`.
 - Use `EXPLAIN ANALYZE` and measured workloads before introducing elaborate indexes.
+- New inventory uses `on_hand`, `reserved`, and a unique variant/location balance. `availableQty` remains for a migration compatibility period; runtime cutover awaits balance reconciliation and PostgreSQL tests.
 
 ## Transaction pseudocode
 ```

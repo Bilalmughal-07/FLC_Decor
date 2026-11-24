@@ -8,7 +8,9 @@ describe("media safety", () => {
     const result = await validateAndReencodeImage(input, "image/jpeg");
     expect(result.mime).toBe("image/webp");
     expect(result.width).toBe(4);
-    expect(result.objectKey).toMatch(/^quarantine\//);
+    expect(result.objectKey).toMatch(/^staging\//);
+    expect(result.thumbnailObjectKey).toMatch(/\/thumb\.webp$/);
+    expect(result.checksumSha256).toMatch(/^[a-f0-9]{64}$/);
   });
 
   it("rejects fake extensions/content and oversized payloads", async () => {

@@ -17,3 +17,5 @@ AuditEvent records privileged actors and safe metadata
 ```
 
 Trust boundaries: browser input is untrusted; route handlers are the server boundary; PostgreSQL is the durability boundary; object storage is isolated and non-executable; email/courier/WhatsApp are post-commit outbox consumers. Customer/admin secrets never enter client bundles.
+
+The expanded, cardinality-annotated production foundation ERD is in [`database/ERD.md`](./database/ERD.md). It remains schema intent until migration and integration evidence are available.

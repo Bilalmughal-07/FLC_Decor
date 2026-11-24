@@ -19,11 +19,11 @@ This checklist is evidence-based. A checked item has a concrete verification ref
 - [x] Baseline security response headers and no-index demo robots policy are present.
 - [x] Global loading and error states are present.
 - [x] Prisma schema validates and client generation passes with `DATABASE_URL` supplied.
-- [x] Forward migration declares the 18 schema tables and explicit foreign-key/delete rules.
+- [x] Additive migration 0004 and production database schema are defined with explicit new foreign-key/delete rules. Prisma validation/generation pass; SQL application is unverified.
 - [x] Development-only seed script exists.
-- [ ] Runtime is switched to verified PostgreSQL transactions instead of the in-memory demo adapter. Code path exists but real DB verification is blocked.
-- [ ] Durable idempotency, inventory ledger, outbox and unknown-commit recovery are production-verified. Schema/code exists; integration and restart evidence are open.
-- [ ] Category-depth enforcement and nullable variant-combination uniqueness are verified in PostgreSQL.
+- [ ] Runtime is switched to verified PostgreSQL transactions instead of the in-memory demo adapter. Opt-in demo path uses balances/reservations; default and production remain demo/fail-closed.
+- [ ] Durable idempotency, inventory ledger, outbox and unknown-commit recovery are production-verified. Schema/code exists; integration/restart evidence remains open.
+- [ ] Category-depth trigger and NULLS NOT DISTINCT variant-combination constraint are executed and verified in PostgreSQL.
 - [ ] Production identity/RLS/backend-only boundaries and admin role mapping are implemented. Local demo auth is not a production provider.
 - [ ] R2/object-storage authorization, processing and cleanup are implemented. Local media validation is available; storage remains disabled.
 
@@ -64,3 +64,20 @@ This checklist is evidence-based. A checked item has a concrete verification ref
 ## Launch decision
 
 **Current assessment: NOT READY FOR PRODUCTION.** The project is suitable for local synthetic development and browser demonstration only. The exact blockers and reproduction evidence are recorded in [`FINAL_AUDIT_REPORT.md`](./FINAL_AUDIT_REPORT.md).
+
+## 2026-10-27 current assessment override
+
+Several older unchecked descriptions above are now stale. The codebase now has
+Supabase customer Auth integration, durable PostgreSQL admin sessions/TOTP/RBAC,
+transactional PostgreSQL checkout/inventory/idempotency, verified constraints,
+encrypted account addresses, approved-only R2 media lifecycle, typed outbox
+notifications, admin catalog/inventory/order/customer/analytics services and
+isolated PostgreSQL/browser evidence. The authoritative detailed status is
+`docs/OVERNIGHT_PROGRESS.md`; launch gates are in
+`docs/GO_LIVE_CHECKLIST.md`.
+
+The release decision remains **NOT READY FOR PRODUCTION**. Hosted migrations,
+custom SMTP, Google OAuth, production admin recovery/key custody, distributed
+rate limits, real R2 verification, backup restore, monitoring, approved product
+content and all shipping/tax/COD/cancellation/returns/legal policies remain
+open. Production checkout is still disabled.

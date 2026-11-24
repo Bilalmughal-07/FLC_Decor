@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "surface-container-low": "#f5f3ef", "outline": "#747878", "on-secondary-fixed": "#271905", "on-secondary-container": "#735f45", "secondary": "#6f5b41", "surface-tint": "#5f5e5e", "secondary-container": "#f7dbba", "on-tertiary-fixed": "#151e12", "on-tertiary-container": "#7d8777", "surface-dim": "#dbdad6", "error-container": "#ffdad6", "inverse-primary": "#c8c6c5", "surface-container-high": "#eae8e4", "on-primary-fixed": "#1c1b1b", "on-error": "#ffffff", "surface-container-highest": "#e4e2de", "primary-fixed-dim": "#c8c6c5", "on-surface-variant": "#444748", "inverse-on-surface": "#f2f0ec", "outline-variant": "#c4c7c7", "surface": "#fbf9f5", "on-secondary-fixed-variant": "#56442b", "on-background": "#1b1c1a", "background": "#fbf9f5", "surface-container-lowest": "#ffffff", "on-primary-container": "#858383", "on-primary-fixed-variant": "#474746", "tertiary-fixed": "#dce6d3", "on-primary": "#ffffff", "surface-variant": "#e4e2de", "secondary-fixed-dim": "#ddc2a2", "on-error-container": "#93000a", "tertiary": "#000000", "primary-fixed": "#e5e2e1", "on-secondary": "#ffffff", "primary": "#000000", "tertiary-container": "#151e12", "primary-container": "#1c1b1b", "inverse-surface": "#30312e", "error": "#ba1a1a", "on-tertiary-fixed-variant": "#40493b", "on-tertiary": "#ffffff", "secondary-fixed": "fadebd", "tertiary-fixed-dim": "#c0cab7", "surface-bright": "#fbf9f5", "on-surface": "#1b1c1a", "surface-container": "#efeeea" }, borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, spacing: { "gutter": "1.5rem", "space-2xl": "4rem", "space-md": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "space-xl": "2.5rem", "margin-tablet": "2.5rem", "margin": "1.25rem", "space-3xl": "6rem", "gutter-desktop": "2.5rem", "margin-desktop": "5rem", "space-lg": "1.5rem" }, fontFamily: { "headline-md": ["Playfair Display"], "price-sm": ["Plus Jakarta Sans"], "display-hero": ["Playfair Display"], "headline-sm": ["Playfair Display"], "label-caps": ["Plus Jakarta Sans"], "display-hero-mobile": ["Playfair Display"], "headline-lg": ["Playfair Display"], "eyebrow-caps": ["Plus Jakarta Sans"], "price-lg": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Playfair Display"], "body-md": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"] }, fontSize: { "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "500" }], "price-sm": ["15px", { "lineHeight": "20px", "fontWeight": "600" }], "display-hero": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "400" }], "headline-sm": ["22px", { "lineHeight": "30px", "fontWeight": "500" }], "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "600" }], "display-hero-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "headline-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "400" }], "eyebrow-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.18em", "fontWeight": "600" }], "price-lg": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "0em", "fontWeight": "400" }], "body-md": ["15px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["13px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="h-16 px-margin flex items-center justify-between"><button aria-label="Previous View" class="w-11 h-11 flex items-center justify-center text-on-surface hover:text-secondary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface tracking-tight text-center truncate px-2 max-w-[200px]">Artisan Piece Detail</h1><div class="flex items-center gap-space-xs"><button aria-label="Curated Cart" class="relative w-11 h-11 flex items-center justify-center text-on-surface hover:text-secondary transition-colors"><span class="material-symbols-outlined text-[22px]">shopping_bag</span><span class="absolute top-2 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-primary text-on-primary font-label-caps text-[10px] flex items-center justify-center leading-none">2</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-28">
+<!-- Gallery Section -->
+<section class="relative w-full bg-surface-container-low overflow-hidden">
+<!-- Gallery Slides Container -->
+<div class="flex w-full overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar" id="gallery-track">
+<!-- Slide 1 -->
+<div class="min-w-full w-full snap-start relative aspect-[4/5] bg-surface-container-high flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Editorial close-up of The Mihrab Silhouette architectural wall sculpture crafted from natural American walnut and laser-cut matte metal, soft directional morning sunlight casting intricate shadows on an ivory textured limewash wall in an upscale minimalist interior." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1o_ZbKI9sLLGcDhObq01-XNR-Naq1slCfn5-WTnH_HkQIMDLz7OgSewOWHL1U3ItBwetUznyzeDSKp3CxJfvNceMZcvikgc8OwOPErxzqGsOL3gO8APilYwMOHAXK4Yoc2duHjMdruF1T-kMJEZ3XeX9ooYB2r4ANP7hVIHV1jFsJAMUHEIhdSZj5RFGxtbPI951Kntk9OfjzZO5ciTzLkoiL3LLvyHBgFpSfEK3KeH0FxTZKSrZldQ"/>
+</div>
+<!-- Slide 2 -->
+<div class="min-w-full w-full snap-start relative aspect-[4/5] bg-surface-container-high flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Angled macro perspective showing the beveled timber edges and seamless hidden joinery of the Mihrab architectural wall sculpture, warm walnut wood grain contrast against brushed champagne metal core." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyRurdJ_-FOsC-FcCrLlB6nA_xrWzwmO0ahiFcZHcacadGdpb8ER7zZg_CUyQtQuw7NNvHz0DN37BjgP99-iBqhZnuFiE-s4BLcxqX1aS1LvFHYDeFJu1c5Xg5kYQ1zeMiqwdXyiQds4FP3vs-16QGvW-3bAId5XYMIp2I-IFuJKQ1J8EVJLqxk6TDz07OGmTDuHC0Jafk1kkt2OQZEnVK32Em8Pyf6LItJizC5qjdg_U-NirLePl4Aw"/>
+</div>
+<!-- Slide 3 -->
+<div class="min-w-full w-full snap-start relative aspect-[4/5] bg-surface-container-high flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Wide contextual shot of a minimalist luxury salon living room with beige linen sofa, displaying the grand Mihrab Silhouette sculpture centered above the credenza with dramatic ambient shadow casting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOUHZE1eRVRrHBENcXOM-cLt_Qol3Au2Q4c-T9_SlRqF7koKBIeu4MJ_qwdxYhqHTJ1jDSsCkxpKb_pnOKeoQEroVBPzTo65JlJr2m7nbTfjHBoUP1ohcjaeg3ExFX9F92Ax1Q9G6g1dBa_On6JeQPd9CPbxVcVDIdyDjplopRm1Wvh21Jrt1bTFgcEeeMc3ycFRU7LaClj9WjegufeCWJjGIrIVaaHLYM8RGi19zkT6Bngj0TBvzbIQ"/>
+</div>
+<!-- Slide 4 -->
+<div class="min-w-full w-full snap-start relative aspect-[4/5] bg-surface-container-high flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Artisan craftsman in a Lahore design studio hand-finishing the curved perimeter of the wooden Mihrab panel with organic beeswax oil, artisanal workshop aesthetic with warm ambient glow." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh6l2kLNnPBXeSjUqnWEv1BLD9HzwbSN6VXOQaiYREu7D2mxcL22E_qgiWY_05nk42FOMDK7aGCaILUGX1mF7Jg8TuRU21OfYGxuPDNy7ndk4stDClx4ZqzKImO9SS3LvDDs8BQg6AVsCqzJg94Np_NTbRx0KyIc6bvUa65L8A0NENwIrME64Iv6mc8F7oXHtzdLEfyx0YupMokAm67tXaUFGUhaQdbV9O0b3sOVjX5CZefCHgC4CNxQ"/>
+</div>
+<!-- Slide 5 -->
+<div class="min-w-full w-full snap-start relative aspect-[4/5] bg-surface-container-high flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Side profile installation view highlighting the floating standoff bracket creating an intentional 25mm negative shadow gap between the wall and the walnut sculpture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbSXDUZpSQA_TW28BC17MoEYga7khM2iPwtjfgkzRWYoWRV-6Pr2H3wqZLst-H_U9ouPAnFS4SM2CXUvzD2y7O7ewPoZQ9NxJQbTKFxuw9hcSRmRUKtxtaE7P-bEGA1NPj4bJEZQOnUjD5lsKts-nEIgMs58Asip0mU098XfbH6tEklf87nyhJmLW6RDzST05ebpWGfEUsLZdAwnGze7cju2Ob4dlO_se_KS_vw-FwZTP78zVBbPvEyg"/>
+</div>
+</div>
+<!-- Floating Top Utility Overlay -->
+<div class="absolute top-4 inset-x-4 flex items-center justify-between pointer-events-none z-10">
+<span class="pointer-events-auto px-3 py-1 rounded-full bg-surface/90 backdrop-blur-md shadow-sm text-secondary font-label-caps text-[10px] tracking-wider uppercase">
+        Artisan Edition
+      </span>
+<button aria-label="Toggle Wishlist" class="pointer-events-auto w-10 h-10 rounded-full bg-surface/90 backdrop-blur-md shadow-sm flex items-center justify-center text-on-surface active:scale-95 transition-transform" id="wishlist-btn" onclick="toggleWishlist()">
+<span class="material-symbols-outlined text-[20px] transition-colors" id="wishlist-icon">favorite</span>
+</button>
+</div>
+<!-- Floating Bottom Controls -->
+<div class="absolute bottom-4 inset-x-4 flex items-center justify-between z-10">
+<!-- Image Counter Pill -->
+<div class="px-3 py-1 rounded-full bg-primary/80 backdrop-blur-md text-on-primary font-label-caps text-label-caps shadow-sm">
+<span id="gallery-current">1</span> / 5
+      </div>
+<!-- Zoom Details Trigger -->
+<button class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface/90 backdrop-blur-md shadow-sm text-on-surface text-label-caps font-label-caps active:scale-95 transition-transform" onclick="showZoomNotice()">
+<span class="material-symbols-outlined text-[16px]">zoom_in</span>
+<span>Tap to Enlarge Details</span>
+</button>
+</div>
+</section>
+<!-- Product Specifications & Commercial Layer -->
+<section class="flex flex-col px-margin pt-6 gap-6">
+<!-- Provenance & Status Badge -->
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-on-tertiary-container animate-pulse"></div>
+<span class="font-eyebrow-caps text-eyebrow-caps text-secondary tracking-widest uppercase">
+        IN STOCK &amp; READY TO CRATE • LAHORE ATELIER
+      </span>
+</div>
+<!-- Title & Rating -->
+<div class="flex flex-col gap-2">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface leading-tight">
+        The Mihrab Silhouette
+      </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Architectural Wall Sculpture with Floating Negative Relief
+      </p>
+<!-- Collector Rating -->
+<div class="flex items-center gap-2 pt-1">
+<div class="flex text-secondary text-sm">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">4.9</span>
+<span class="text-outline-variant">•</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant underline underline-offset-4 decoration-outline-variant">
+          48 Collector Reviews
+        </span>
+</div>
+</div>
+<!-- Pricing Row -->
+<div class="flex items-baseline gap-3 py-3 px-4 rounded-xl bg-surface-container-low">
+<span class="font-price-lg text-price-lg text-on-surface" id="price-display">PKR 18,500</span>
+<span class="font-body-md text-body-md text-on-surface-variant line-through" id="price-slashed">PKR 21,500</span>
+<span class="ml-auto px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-caps text-[11px]">
+        Save PKR 3,000
+      </span>
+</div>
+<!-- Material & Finish Selector -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider">
+          Material &amp; Finish
+        </label>
+<span class="font-body-sm text-body-sm text-secondary font-medium" id="selected-finish-name">
+          Natural American Walnut
+        </span>
+</div>
+<div class="flex items-center gap-3">
+<!-- Finish Option 1 -->
+<button class="finish-swatch flex-1 flex flex-col items-center gap-2 p-2.5 rounded-xl bg-surface-container transition-all shadow-sm ring-2 ring-primary" data-finish="Natural American Walnut" onclick="selectFinish(this, 'Natural American Walnut')">
+<div class="w-9 h-9 rounded-full bg-[#5d4037] shadow-inner flex items-center justify-center">
+<span class="swatch-check material-symbols-outlined text-surface text-[18px]">check</span>
+</div>
+<span class="font-label-caps text-[11px] text-on-surface text-center line-clamp-1">Am. Walnut</span>
+</button>
+<!-- Finish Option 2 -->
+<button class="finish-swatch flex-1 flex flex-col items-center gap-2 p-2.5 rounded-xl bg-surface-container-low transition-all" data-finish="Smoked Ash (Deep Ebonized)" onclick="selectFinish(this, 'Smoked Ash (Deep Ebonized)')">
+<div class="w-9 h-9 rounded-full bg-[#262626] shadow-inner flex items-center justify-center">
+<span class="swatch-check hidden material-symbols-outlined text-surface text-[18px]">check</span>
+</div>
+<span class="font-label-caps text-[11px] text-on-surface-variant text-center line-clamp-1">Smoked Ash</span>
+</button>
+<!-- Finish Option 3 -->
+<button class="finish-swatch flex-1 flex flex-col items-center gap-2 p-2.5 rounded-xl bg-surface-container-low transition-all" data-finish="Champagne Brass (Lustrous)" onclick="selectFinish(this, 'Champagne Brass (Lustrous)')">
+<div class="w-9 h-9 rounded-full bg-[#c5a059] shadow-inner flex items-center justify-center">
+<span class="swatch-check hidden material-symbols-outlined text-surface text-[18px]">check</span>
+</div>
+<span class="font-label-caps text-[11px] text-on-surface-variant text-center line-clamp-1">Champagne</span>
+</button>
+</div>
+</div>
+<!-- Sculptural Dimensions Selector -->
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<label class="font-label-caps text-label-caps uppercase text-on-surface-variant tracking-wider">
+          Sculptural Scale
+        </label>
+<span class="font-body-sm text-body-sm text-secondary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">straighten</span> Custom Scaling Available
+        </span>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Dimension Chip 1 -->
+<button class="dimension-chip w-full flex items-center justify-between p-3.5 rounded-xl bg-surface-container shadow-sm text-left transition-all ring-2 ring-primary" onclick="selectDimension(this, 18500, 21500, '3,000')">
+<div class="flex items-center gap-3">
+<div class="dim-radio w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-surface"></div>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium leading-none">Medium (36" × 24")</p>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1">Recommended for entryways &amp; reading nooks</p>
+</div>
+</div>
+<span class="font-price-sm text-price-sm text-on-surface">PKR 18,500</span>
+</button>
+<!-- Dimension Chip 2 -->
+<button class="dimension-chip w-full flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low text-left transition-all" onclick="selectDimension(this, 26000, 29500, '3,500')">
+<div class="flex items-center gap-3">
+<div class="dim-radio w-4 h-4 rounded-full bg-surface-container-high flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-transparent"></div>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium leading-none">Large (48" × 32")</p>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1">Ideal anchor for 3-seater sofa backings</p>
+</div>
+</div>
+<span class="font-price-sm text-price-sm text-on-surface">PKR 26,000</span>
+</button>
+<!-- Dimension Chip 3 -->
+<button class="dimension-chip w-full flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low text-left transition-all" onclick="selectDimension(this, 38000, 43000, '5,000')">
+<div class="flex items-center gap-3">
+<div class="dim-radio w-4 h-4 rounded-full bg-surface-container-high flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-transparent"></div>
+</div>
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium leading-none">Grand Salon (60" × 40")</p>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1">Monumental foyer &amp; double-height walls</p>
+</div>
+</div>
+<span class="font-price-sm text-price-sm text-on-surface">PKR 38,000</span>
+</button>
+</div>
+</div>
+<!-- Quantity Stepper & Add to Bag -->
+<div class="flex items-center gap-3 pt-2">
+<!-- Stepper -->
+<div class="flex items-center justify-between h-12 px-3 rounded-lg bg-surface-container-high w-28 shrink-0">
+<button aria-label="Decrease Quantity" class="w-7 h-7 flex items-center justify-center text-on-surface active:scale-90 transition-transform font-bold text-lg" onclick="updateQty(-1)">−</button>
+<span class="font-price-sm text-price-sm text-on-surface" id="qty-val">1</span>
+<button aria-label="Increase Quantity" class="w-7 h-7 flex items-center justify-center text-on-surface active:scale-90 transition-transform font-bold text-lg" onclick="updateQty(1)">+</button>
+</div>
+<!-- Add to Atelier Bag CTA -->
+<button class="flex-1 h-12 rounded-lg bg-primary text-on-primary font-label-caps text-label-caps uppercase tracking-widest flex items-center justify-center gap-2 shadow-md active:bg-on-surface-variant transition-colors" onclick="triggerAddedFeedback()">
+<span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+<span>Add to Atelier Bag</span>
+</button>
+</div>
+<!-- Secondary Instant Purchase -->
+<button class="w-full h-12 rounded-lg bg-surface-container-high text-on-surface font-label-caps text-label-caps uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm active:bg-surface-container-highest transition-colors" onclick="triggerAddedFeedback()">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+<span>Buy via COD or Bank Card</span>
+</button>
+<!-- Atelier Architect Bespoke Consultation Prompt -->
+<a class="flex items-center gap-3 p-4 rounded-xl bg-surface-container-low shadow-sm active:bg-surface-container transition-colors" href="https://wa.me/" rel="noopener noreferrer" target="_blank">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">architecture</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-on-surface font-medium leading-snug">Need bespoke dimensions?</p>
+<p class="font-body-sm text-body-sm text-secondary truncate">Chat with Atelier Architect on WhatsApp</p>
+</div>
+<span class="material-symbols-outlined text-secondary text-[20px]">chevron_right</span>
+</a>
+<!-- Detail Accordions -->
+<div class="flex flex-col gap-2 pt-2">
+<!-- Accordion Item 1 -->
+<div class="rounded-xl bg-surface-container-low overflow-hidden transition-all">
+<button class="w-full flex items-center justify-between p-4 text-left" onclick="toggleAccordion('acc-1')">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px]">carpenter</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Craftsmanship &amp; Materials</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] transition-transform duration-200" id="acc-1-icon">expand_more</span>
+</button>
+<div class="hidden px-4 pb-4 pt-1 font-body-sm text-body-sm text-on-surface-variant flex-col gap-2" id="acc-1-content">
+<p>Meticulously sculpted from kiln-dried Grade-A American Walnut and multi-layered structural core timber. The inner arches feature laser-cut aerated negative motifs with hand-beveled edges.</p>
+<p class="pt-1">Coated in three protective coats of natural micro-crystalline wax and organic Danish oil to highlight authentic grain variation without synthetic plastic sheen.</p>
+</div>
+</div>
+<!-- Accordion Item 2 -->
+<div class="rounded-xl bg-surface-container-low overflow-hidden transition-all">
+<button class="w-full flex items-center justify-between p-4 text-left" onclick="toggleAccordion('acc-2')">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px]">hardware</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Installation &amp; Zero-Screw Hardware</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] transition-transform duration-200" id="acc-2-icon">expand_more</span>
+</button>
+<div class="hidden px-4 pb-4 pt-1 font-body-sm text-body-sm text-on-surface-variant flex-col gap-2" id="acc-2-content">
+<p>Ships with our proprietary aircraft-grade aluminum French-cleat mounting rail. Zero screws remain visible once mounted, creating an effortless 25mm cantilevered floating illusion off the wall.</p>
+<p class="pt-1">Includes laser-calibrated bubble level, heavy-duty masonry anchors, and standard drywall toggles.</p>
+</div>
+</div>
+<!-- Accordion Item 3 -->
+<div class="rounded-xl bg-surface-container-low overflow-hidden transition-all">
+<button class="w-full flex items-center justify-between p-4 text-left" onclick="toggleAccordion('acc-3')">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-[20px]">inventory_2</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Transit Guarantee &amp; OSB Crating</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px] transition-transform duration-200" id="acc-3-icon">expand_more</span>
+</button>
+<div class="hidden px-4 pb-4 pt-1 font-body-sm text-body-sm text-on-surface-variant flex-col gap-2" id="acc-3-content">
+<p>Every piece is encased in high-density polyethylene impact foam and bolted inside a reinforced, export-grade OSB timber crate. Insured against all domestic transit damage nationwide across Pakistan.</p>
+<p class="pt-1">Dispatches from our Lahore atelier within 48 hours. Expected transit: 2–4 business days via verified cargo courier.</p>
+</div>
+</div>
+</div>
+<!-- Architectural Monograph / Story Excerpt -->
+<div class="p-5 rounded-xl bg-surface-container flex flex-col gap-3 my-2">
+<div class="flex items-center gap-2">
+<span class="font-eyebrow-caps text-eyebrow-caps text-secondary uppercase tracking-widest">Architectural Monograph</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-on-surface italic leading-snug">
+        “A dialogue between historic sacred geometry and brutalist spatial reduction.”
+      </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+        Designed to capture ambient sunlight shifts across the day, creating an ever-changing silhouette on adjacent wall surfaces.
+      </p>
+</div>
+</section>
+<!-- Sticky Bottom Conversion Bar -->
+<aside class="fixed bottom-0 inset-x-0 z-40 bg-surface/90 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.06)] px-margin py-3 pb-safe">
+<div class="flex items-center justify-between gap-4 max-w-lg mx-auto">
+<div class="flex flex-col min-w-0">
+<span class="font-label-caps text-[10px] uppercase text-on-surface-variant tracking-wider">Total Valuation</span>
+<div class="flex items-baseline gap-2">
+<span class="font-price-lg text-price-lg text-on-surface leading-tight" id="sticky-price">PKR 18,500</span>
+<span class="font-body-sm text-body-sm text-on-tertiary-container font-medium">In Stock</span>
+</div>
+</div>
+<button class="flex-1 max-w-[200px] h-12 rounded-lg bg-primary text-on-primary font-label-caps text-label-caps uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform" onclick="triggerAddedFeedback()">
+<span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+<span>Add to Bag</span>
+</button>
+</div>
+</aside>
+<!-- Floating Toast Notification -->
+<div class="fixed top-20 inset-x-6 z-50 transform -translate-y-16 opacity-0 pointer-events-none transition-all duration-300 flex items-center justify-center" id="toast">
+<div class="px-5 py-3 rounded-full bg-primary text-on-primary shadow-xl flex items-center gap-2 font-label-caps text-label-caps uppercase tracking-wider">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed">check_circle</span>
+<span id="toast-text">Curated piece added to atelier bag</span>
+</div>
+</div>
+</div>
+<script>
+  // Gallery Pagination Tracking
+  const track = document.getElementById('gallery-track');
+  const counter = document.getElementById('gallery-current');
+  
+  if (track) {
+    track.addEventListener('scroll', () => {
+      const slideWidth = track.clientWidth;
+      const currentSlide = Math.round(track.scrollLeft / slideWidth) + 1;
+      if (counter) counter.textContent = currentSlide;
+    });
+  }
+
+  // Wishlist Toggle
+  let isWishlisted = false;
+  function toggleWishlist() {
+    isWishlisted = !isWishlisted;
+    const icon = document.getElementById('wishlist-icon');
+    if (isWishlisted) {
+      icon.style.fontVariationSettings = "'FILL' 1";
+      icon.classList.add('text-secondary');
+      showToast('Preserved to private collector list');
+    } else {
+      icon.style.fontVariationSettings = "'FILL' 0";
+      icon.classList.remove('text-secondary');
+      showToast('Removed from collector list');
+    }
+  }
+
+  // Material & Finish Selector
+  function selectFinish(btn, finishName) {
+    document.querySelectorAll('.finish-swatch').forEach(swatch => {
+      swatch.classList.remove('ring-2', 'ring-primary', 'bg-surface-container');
+      swatch.classList.add('bg-surface-container-low');
+      const check = swatch.querySelector('.swatch-check');
+      if (check) check.classList.add('hidden');
+    });
+
+    btn.classList.add('ring-2', 'ring-primary', 'bg-surface-container');
+    btn.classList.remove('bg-surface-container-low');
+    const check = btn.querySelector('.swatch-check');
+    if (check) check.classList.remove('hidden');
+
+    const nameLabel = document.getElementById('selected-finish-name');
+    if (nameLabel) nameLabel.textContent = finishName;
+  }
+
+  // Sculptural Dimension Selector
+  let basePrice = 18500;
+  function selectDimension(btn, price, original, saved) {
+    basePrice = price;
+    document.querySelectorAll('.dimension-chip').forEach(chip => {
+      chip.classList.remove('ring-2', 'ring-primary', 'bg-surface-container');
+      chip.classList.add('bg-surface-container-low');
+      const radio = chip.querySelector('.dim-radio');
+      if (radio) {
+        radio.classList.remove('bg-primary');
+        radio.classList.add('bg-surface-container-high');
+        radio.firstElementChild.classList.remove('bg-surface');
+        radio.firstElementChild.classList.add('bg-transparent');
+      }
+    });
+
+    btn.classList.add('ring-2', 'ring-primary', 'bg-surface-container');
+    btn.classList.remove('bg-surface-container-low');
+    const radio = btn.querySelector('.dim-radio');
+    if (radio) {
+      radio.classList.add('bg-primary');
+      radio.classList.remove('bg-surface-container-high');
+      radio.firstElementChild.classList.add('bg-surface');
+      radio.firstElementChild.classList.remove('bg-transparent');
+    }
+
+    const qty = parseInt(document.getElementById('qty-val').textContent) || 1;
+    updatePriceDisplay(qty);
+  }
+
+  // Quantity Stepper
+  function updateQty(delta) {
+    const qtyEl = document.getElementById('qty-val');
+    let qty = parseInt(qtyEl.textContent) || 1;
+    qty = Math.max(1, Math.min(10, qty + delta));
+    qtyEl.textContent = qty;
+    updatePriceDisplay(qty);
+  }
+
+  function updatePriceDisplay(qty) {
+    const total = basePrice * qty;
+    const formatted = 'PKR ' + total.toLocaleString();
+    document.getElementById('price-display').textContent = formatted;
+    document.getElementById('sticky-price').textContent = formatted;
+  }
+
+  // Accordion Toggle
+  function toggleAccordion(id) {
+    const content = document.getElementById(id + '-content');
+    const icon = document.getElementById(id + '-icon');
+    if (content.classList.contains('hidden')) {
+      content.classList.remove('hidden');
+      content.classList.add('flex');
+      icon.style.transform = 'rotate(180deg)';
+    } else {
+      content.classList.add('hidden');
+      content.classList.remove('flex');
+      icon.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  // User Notifications
+  function showZoomNotice() {
+    showToast('Double-tap or pinch any angle to examine joinery');
+  }
+
+  function triggerAddedFeedback() {
+    showToast('Curated piece added to atelier bag');
+  }
+
+  let toastTimer;
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toast-text');
+    if (!toast || !toastText) return;
+
+    toastText.textContent = message;
+    toast.classList.remove('-translate-y-16', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('-translate-y-16', 'opacity-0');
+    }, 2400);
+  }
+</script></main></body></html>

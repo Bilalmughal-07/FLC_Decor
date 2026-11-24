@@ -18,6 +18,12 @@ Catalog fixtures live in `lib/catalog.ts`. Demo order state lives in `lib/demo-s
 - External email/courier/WhatsApp actions occur after the database transaction through an outbox worker.
 - Cloudflare Workers are a deployment candidate only after Next.js runtime compatibility, server package support, connection behavior and commercial terms are verified against current official documentation.
 
+## Database foundation status
+
+Migration `0004_production_database_foundation` and Prisma models add customer profiles that reference an external auth UUID, role/permission data, ready-stock inventory balances/reservations/movements, independent fulfillment/payment state, order address snapshots, shipments, payment records, webhook dedupe, outbox/delivery, guest tracking challenge/capability primitives and a derived placed-value view. The migration is additive and backfills an inactive local stock location from legacy `Variant.availableQty` without deleting the original field. A serialized trigger enforces the two-level category tree and rejects cycles.
+
+This is a database foundation, not a runtime or production deployment claim. The active checkout route defaults to demo memory storage. The explicitly selected database demo path now writes a ready-stock reservation and related snapshots/payment/audit/outbox rows in one serializable transaction, but it remains non-production and requires `CHECKOUT_TOTALS_MODE=synthetic-zero`. Migration 0004 has not been applied because Docker is unavailable and the running local PostgreSQL listener rejected the documented demo credentials; its owner/database was not modified.
+
 ## Trust boundaries
 
 1. Browser input is untrusted. It never supplies authoritative price, stock, role, status transition or media approval.
@@ -28,7 +34,7 @@ Catalog fixtures live in `lib/catalog.ts`. Demo order state lives in `lib/demo-s
 
 ## Checkout transaction
 
-In production, a single PostgreSQL transaction must claim the scoped idempotency key, lock or conditionally decrement variants in deterministic order, insert the immutable order/item snapshots, write inventory ledger and outbox rows, and store the response. No third-party network call may occur before commit. If durability is unsafe, the service fails closed; if the client loses the response, the same idempotency key resolves the original outcome.
+In production, a single PostgreSQL transaction must claim the scoped idempotency key, lock or conditionally reserve exact variant/location balances in deterministic order, insert immutable order/item/address snapshots, create an unpaid payment intent, append inventory movement/status/audit rows, enqueue notification/outbox records, and store the response. Physical `onHand` is reduced only when an approved fulfillment transition commits the reservation. No third-party network call may occur before commit. If durability is unsafe, the service fails closed; if the client loses the response, the same idempotency key resolves the original outcome.
 
 ## Failure modes
 

@@ -1,3 +1,3 @@
-import Link from "next/link";
 import { PageShell } from "@/components/page-shell";
-export default function AccountPage() { return <PageShell><div className="narrow-page"><p className="eyebrow">Customer account</p><h1>Keep your orders in one place.</h1><p className="lead">Local demo accounts now use server-managed, revocable httpOnly sessions and memory-hard password hashing. Email delivery and durable production identity remain explicitly unconfigured.</p><div className="hero-actions"><Link className="button button-dark" href="/account/login">Sign in</Link><Link className="button button-outline" href="/account/register">Create account</Link></div><div className="not-configured"><strong>DEMO ACCOUNT ADAPTER</strong><p>Guest checkout remains available without an account. Production still requires a durable identity provider, reset delivery, optional customer TOTP and shared session storage.</p></div></div></PageShell>; }
+import { AccountClient } from "./account-client";
+export default function AccountPage() { return <PageShell><AccountClient /></PageShell>; }

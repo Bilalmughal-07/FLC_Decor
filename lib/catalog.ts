@@ -20,6 +20,7 @@ export type Product = {
   createdAt: string;
   art: string;
   variants: Variant[];
+  images?: Array<{ id: string; src: string; thumbnailSrc?: string; alt: string; variantId?: string; width?: number; height?: number }>;
 };
 
 export const categories = [

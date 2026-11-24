@@ -1,3 +1,6 @@
-import { NextResponse } from "next/server";
-
-export function GET() { return NextResponse.json({ ok: true, service: "fahad-laser-web", demo: true, timestamp: new Date().toISOString() }); }
+export async function GET() {
+  return Response.json(
+    { status: "ok" },
+    { headers: { "cache-control": "no-store", "x-content-type-options": "nosniff" } },
+  );
+}

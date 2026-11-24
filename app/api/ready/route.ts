@@ -1,4 +1,6 @@
-import { NextResponse } from "next/server";
-import { isDemoCheckoutEnabled } from "@/lib/demo-store";
+import { GET as readiness } from "@/app/api/health/ready/route";
 
-export function GET() { const demo = isDemoCheckoutEnabled(); return NextResponse.json({ ready: true, checkout: demo ? "demo-only" : "disabled", database: "not-connected-in-local-fallback", productionDurability: false }); }
+// Backward-compatible alias for deployments that already monitor /api/ready.
+// The canonical readiness implementation performs a read-only dependency check.
+export const runtime = "nodejs";
+export async function GET() { return readiness(); }
