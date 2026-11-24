@@ -12,6 +12,10 @@ test-results/
 !.env.staging.example
 client_secret_*.json
 .tmp-ink-bleed-reference-*/
+.agents/
+.codex/
+.impeccable/
+.impeccable-review-*.png
 *.log
 *.tsbuildinfo
 prisma/dev.db
